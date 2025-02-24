@@ -28,6 +28,8 @@ function extractBookTitles(html: string): string[] {
   const ebooks = Object.values(tier_item_data);
   const filtered = ebooks.filter((item: any) => item.item_content_type == "ebook");
   const titles = filtered.map((item: any) => item.human_name);
+  const developers = filtered.map((item: any) => item.developers);
+  console.log(developers);
   console.log(titles);
   
   return titles.sort();
