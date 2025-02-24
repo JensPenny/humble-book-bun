@@ -1,4 +1,5 @@
-import { $ } from "bun";
+import type { BookItem } from "./types";
+import { UnmarshalBookItem } from "./types";
 
 const HUMBLE_BUNDLE_URL = "https://www.humblebundle.com/books/full-stack-development-with-apress-books";
 
@@ -15,7 +16,7 @@ async function fetchBundlePage(url: string): Promise<string> {
   return await response.text();
 }
 
-function extractBookTitles(html: string): string[] {
+function extractBookTitles(html: string): BookItem[] {
   let script_tag = "";
   const rewriter = new HTMLRewriter().on("script#webpack-bundle-page-data", {
     text(text){
@@ -25,14 +26,9 @@ function extractBookTitles(html: string): string[] {
   rewriter.transform(html)
   const asJson = JSON.parse(script_tag);
   const tier_item_data = asJson.bundleData.tier_item_data;
-  const ebooks = Object.values(tier_item_data);
-  const filtered = ebooks.filter((item: any) => item.item_content_type == "ebook");
-  const titles = filtered.map((item: any) => item.human_name);
-  const developers = filtered.map((item: any) => item.developers);
-  console.log(developers);
-  console.log(titles);
-  
-  return titles.sort();
+  const books: BookItem[] = Object.values(tier_item_data).map(UnmarshalBookItem);
+  const filtered = books.filter(book => book.item_content_type === "ebook");
+  return filtered.sort((a, b) => a.human_name.localeCompare(b.human_name));
 }
 
 (async () => {
@@ -50,8 +46,8 @@ function extractBookTitles(html: string): string[] {
     }
     
     console.log(`Found ${books.length} unique books:\n`);
-    // Print each book title on a new line with a bullet point
-    books.forEach(book => console.log(`• ${book}`));
+    // Print each book title and developers on a new line with a bullet point
+    books.forEach(book => console.log(`• ${book.human_name} by ${book.developers.map(dev => dev.developer_name).join(", ")}`));
     
   } catch (error: any) {
     if (error.message.includes('404')) {
