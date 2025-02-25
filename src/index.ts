@@ -1,5 +1,6 @@
 import type { BookItem } from "./types";
 import { UnmarshalBookItem } from "./types";
+import { getGoodreadsRatings } from "./goodreads";
 
 const HUMBLE_BUNDLE_URL = "https://www.humblebundle.com/books/full-stack-development-with-apress-books";
 
@@ -45,15 +46,16 @@ function extractBookTitles(html: string): BookItem[] {
       process.exit(1);
     }
     
-    console.log(`Found ${books.length} unique books:\n`);
-    // Print each book title and developers on a new line with a bullet point
-    books.forEach(book => console.log(`• ${book.human_name} by ${book.developers.map(dev => dev.developer_name).join(", ")}`));
-
-    // for (const book of books){
-    //   (await fetch("https://openlibrary.org/search.json?title="+book.human_name)).json()
-    //   .then(resp => console.log(resp.docs.map((d:any) => d.key).join(", ")))
-    //   .catch(err => console.error(err));
-    // }
+    console.log(`Found ${books.length} unique books. Fetching Goodreads ratings...\n`);
+    
+    // Get Goodreads ratings for all books
+    const booksWithRatings = await getGoodreadsRatings(books);
+    
+    // Print each book title, authors, and rating on a new line with a bullet point
+    booksWithRatings.forEach(book => {
+      const ratingText = book.rating ? `${book.rating}/5` : 'No rating found';
+      console.log(`• ${book.human_name} by ${book.developers.map(dev => dev.developer_name).join(", ")} - Goodreads: ${ratingText}`);
+    });
 
   } catch (error: any) {
     if (error.message.includes('404')) {
