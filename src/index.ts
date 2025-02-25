@@ -6,7 +6,7 @@ const HUMBLE_BUNDLE_URL = "https://www.humblebundle.com/books/full-stack-develop
 async function fetchBundlePage(url: string): Promise<string> {
   const response = await fetch(url, {
     headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      'User-Agent': 'humble-bundle-bun',
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
       'Accept-Language': 'en-US,en;q=0.5',
     }
@@ -48,7 +48,13 @@ function extractBookTitles(html: string): BookItem[] {
     console.log(`Found ${books.length} unique books:\n`);
     // Print each book title and developers on a new line with a bullet point
     books.forEach(book => console.log(`• ${book.human_name} by ${book.developers.map(dev => dev.developer_name).join(", ")}`));
-    
+
+    // for (const book of books){
+    //   (await fetch("https://openlibrary.org/search.json?title="+book.human_name)).json()
+    //   .then(resp => console.log(resp.docs.map((d:any) => d.key).join(", ")))
+    //   .catch(err => console.error(err));
+    // }
+
   } catch (error: any) {
     if (error.message.includes('404')) {
       console.error("Error: Bundle not found. The bundle might have expired or the URL might be incorrect.");
