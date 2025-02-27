@@ -1,11 +1,11 @@
-import type { BookItem } from "./types";
+import type { BookItem, GoodreadsRating } from "./types";
 
 /**
- * Scrapes Goodreads to get the average rating for a book
+ * Scrapes Goodreads to get the rating information for a book
  * @param book The book item to get the rating for
- * @returns A promise that resolves to the average rating or null if not found
+ * @returns A promise that resolves to the rating information
  */
-export async function getGoodreadsRating(book: BookItem): Promise<number | null> {
+export async function getGoodreadsRating(book: BookItem): Promise<GoodreadsRating> {
   try {
     // Step 1: Search for the book on Goodreads
     const searchUrl = `https://www.goodreads.com/search?q=${encodeURIComponent(book.human_name)}`;
@@ -21,7 +21,7 @@ export async function getGoodreadsRating(book: BookItem): Promise<number | null>
     
     if (!searchResponse.ok) {
       console.error(`Failed to search Goodreads: ${searchResponse.status}`);
-      return null;
+      return { ratingValue: null, ratingCount: null, reviewCount: null };
     }
     
     const searchHtml = await searchResponse.text();
@@ -30,7 +30,7 @@ export async function getGoodreadsRating(book: BookItem): Promise<number | null>
     const bookUrlMatch = searchHtml.match(/href="(\/book\/show\/[^"]+)"/);
     if (!bookUrlMatch) {
       console.log(`No Goodreads results found for: ${book.human_name}`);
-      return null;
+      return { ratingValue: null, ratingCount: null, reviewCount: null };
     }
     
     const bookRelativeUrl = bookUrlMatch[1];
@@ -48,7 +48,7 @@ export async function getGoodreadsRating(book: BookItem): Promise<number | null>
     
     if (!bookResponse.ok) {
       console.error(`Failed to fetch book page: ${bookResponse.status}`);
-      return null;
+      return { ratingValue: null, ratingCount: null, reviewCount: null };
     }
     
     const bookHtml = await bookResponse.text();
@@ -104,16 +104,38 @@ export async function getGoodreadsRating(book: BookItem): Promise<number | null>
       }
     }
     
+    // Try to extract rating count if not found in JSON-LD
+    if (ratingCount === null) {
+      const ratingCountMatch = bookHtml.match(/data-testid="ratingsCount"[^>]*>(\d+)/);
+      if (ratingCountMatch) {
+        ratingCount = parseInt(ratingCountMatch[1]);
+      }
+    }
+    
+    // Try to extract review count if not found in JSON-LD
+    if (reviewCount === null) {
+      const reviewCountMatch = bookHtml.match(/data-testid="reviewsCount"[^>]*>(\d+)/);
+      if (reviewCountMatch) {
+        reviewCount = parseInt(reviewCountMatch[1]);
+      }
+    }
+    
+    const rating: GoodreadsRating = {
+      ratingValue,
+      ratingCount,
+      reviewCount
+    };
+    
     if (ratingValue !== null) {
       console.log(`Found rating for "${book.human_name}": ${ratingValue}/5 - ${ratingCount} ratings - ${reviewCount} reviews`);
-      return ratingValue;
     } else {
       console.log(`Could not extract rating for: ${book.human_name}`);
-      return null;
     }
+    
+    return rating;
   } catch (error) {
     console.error(`Error getting Goodreads rating for "${book.human_name}":`, error);
-    return null;
+    return { ratingValue: null, ratingCount: null, reviewCount: null };
   }
 }
 
@@ -122,7 +144,7 @@ export async function getGoodreadsRating(book: BookItem): Promise<number | null>
  * @param books The list of books to get ratings for
  * @returns A promise that resolves to an array of books with their ratings
  */
-export async function getGoodreadsRatings(books: BookItem[]): Promise<Array<BookItem & { rating: number | null }>> {
+export async function getGoodreadsRatings(books: BookItem[]): Promise<Array<BookItem & { rating: GoodreadsRating }>> {
   const booksWithRatings = [];
   
   for (const book of books) {

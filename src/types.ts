@@ -9,6 +9,12 @@ export interface Developer {
     developer_name: string;
 }
 
+export interface GoodreadsRating {
+    ratingValue: number | null;
+    ratingCount: number | null;
+    reviewCount: number | null;
+}
+
 export const UnmarshalBookItem = (data: any): BookItem => ({
     human_name: data.human_name,
     description_text: data.description_text,

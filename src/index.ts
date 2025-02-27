@@ -1,8 +1,11 @@
-import type { BookItem } from "./types";
+import type { BookItem, GoodreadsRating } from "./types";
 import { UnmarshalBookItem } from "./types";
 import { getGoodreadsRatings } from "./goodreads";
 
-const HUMBLE_BUNDLE_URL = "https://www.humblebundle.com/books/full-stack-development-with-apress-books";
+
+const HUMBLE_BUNDLE_URL = "https://www.humblebundle.com/books/ultimate-cybersecurity-career-packt-books";
+// const HUMBLE_BUNDLE_URL = "https://www.humblebundle.com/books/linux-from-beginner-to-professional-oreilly-books";
+//const HUMBLE_BUNDLE_URL = "https://www.humblebundle.com/books/full-stack-development-with-apress-books";
 
 async function fetchBundlePage(url: string): Promise<string> {
   const response = await fetch(url, {
@@ -51,9 +54,19 @@ function extractBookTitles(html: string): BookItem[] {
     // Get Goodreads ratings for all books
     const booksWithRatings = await getGoodreadsRatings(books);
     
-    // Print each book title, authors, and rating on a new line with a bullet point
+    // Print each book title, authors, and rating information on a new line with a bullet point
     booksWithRatings.forEach(book => {
-      const ratingText = book.rating ? `${book.rating}/5` : 'No rating found';
+      let ratingText = 'No rating found';
+      if (book.rating.ratingValue) {
+        ratingText = `${book.rating.ratingValue}/5`;
+        if (book.rating.ratingCount) {
+          ratingText += ` (${book.rating.ratingCount} ratings`;
+          if (book.rating.reviewCount) {
+            ratingText += `, ${book.rating.reviewCount} reviews`;
+          }
+          ratingText += ')';
+        }
+      }
       console.log(`• ${book.human_name} by ${book.developers.map(dev => dev.developer_name).join(", ")} - Goodreads: ${ratingText}`);
     });
 
