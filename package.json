@@ -1,11 +1,24 @@
 {
   "name": "humble-book-bun",
-  "module": "index.ts",
+  "module": "src/index.ts",
   "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "server": "bun run src/index.ts --server",
+    "cli": "bun run src/index.ts",
+    "dev": "bun --watch run src/index.ts --server",
+    "frontend:dev": "vite --config vite.config.ts",
+    "frontend:build": "vite build --config vite.config.ts",
+    "frontend:type-check": "vue-tsc --noEmit"
+  },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vite": "^6.2.0",
+    "vue": "^3.4.21",
+    "vue-tsc": "^2.0.6"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.7.3"
   }
 }
