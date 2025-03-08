@@ -174,3 +174,7 @@ dist
 # Finder (MacOS) folder config
 .DS_Store
 ol_dump_ratings_2025-02-11.txt
+
+# Custom docs that are not really shareable yet
+docs/cloudflare_d1_setup.md
+testdb.sqlite3
