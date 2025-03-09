@@ -4,7 +4,7 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [vue()],
-  root: 'vue-frontend',
+  root: 'frontend',
   build: {
     outDir: '../public/dist',
     emptyOutDir: true

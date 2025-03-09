@@ -3,20 +3,24 @@
   "module": "src/index.ts",
   "type": "module",
   "scripts": {
-    "start": "bun run src/index.ts",
-    "server": "bun run src/index.ts --server",
-    "cli": "bun run src/index.ts",
-    "dev": "bun --watch run src/index.ts --server",
+    "cli": "bun run api/index.ts",
+    "server": "bun --watch run api/index.ts --server",
     "frontend:dev": "vite --config vite.config.ts",
     "frontend:build": "vite build --config vite.config.ts",
-    "frontend:type-check": "vue-tsc --noEmit"
+    "frontend:type-check": "vue-tsc --noEmit",
+    "frontend:deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "cf-typegen": "wrangler types"
   },
   "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.7.7",
+    "@cloudflare/workers-types": "^4.20250303.0",
     "@types/bun": "latest",
     "@vitejs/plugin-vue": "^5.2.1",
     "vite": "^6.2.0",
     "vue": "^3.4.21",
-    "vue-tsc": "^2.0.6"
+    "vue-tsc": "^2.0.6",
+    "wrangler": "^3.114.0"
   },
   "peerDependencies": {
     "typescript": "^5.7.3"

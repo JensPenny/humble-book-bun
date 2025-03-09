@@ -52,7 +52,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import type { BookItem, GoodreadsRating } from '../../src/types';
+import type { BookItem, GoodreadsRating } from '../../api/types';
 
 export default defineComponent({
   name: 'App',
