@@ -1,6 +1,6 @@
 import { analyzeBundleUrl } from "../core/humble";
 
-const DEFAULT_URL = "https://www.humblebundle.com/books/ultimate-cybersecurity-career-packt-books";
+const DEFAULT_URL = "https://www.humblebundle.com/books/computer-science-fun-way-no-starch-books";
 
 async function main() {
   try {

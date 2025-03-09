@@ -1,4 +1,11 @@
-
+export interface Bundle {
+    name: string;
+    author: string;
+    type: string;
+    url: string;
+    start_bundle: Date;
+    end_bundle: Date;
+}
 
 export interface BookItem {
     human_name: string;

@@ -1,4 +1,4 @@
-import type { BookItem, GoodreadsRating } from "../types";
+import type { BookItem, GoodreadsRating, Bundle } from "../types";
 import { UnmarshalBookItem } from "../types";
 import { getGoodreadsRatings } from "../goodreads";
 
@@ -25,6 +25,16 @@ export function extractBookTitles(html: string): BookItem[] {
   rewriter.transform(html)
   const asJson = JSON.parse(script_tag);
   const tier_item_data = asJson.bundleData.tier_item_data;
+  
+  const BundleData:Bundle = {
+    name: asJson.bundleData.basic_data.human_name, 
+    author: asJson.bundleData.author,
+    type: asJson.bundleData.basic_data.media_type,
+    url: asJson.bundleData.basic_data.page_url, 
+    start_bundle: new Date(), 
+    end_bundle: new Date(asJson.bundleData.basic_data["end_time|datetime"]),
+  }
+
   const books: BookItem[] = Object.values(tier_item_data).map(UnmarshalBookItem);
   const filtered = books.filter(book => book.item_content_type === "ebook");
   return filtered.sort((a, b) => a.human_name.localeCompare(b.human_name));
