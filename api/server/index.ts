@@ -27,16 +27,17 @@ const server = Bun.serve({
         const id = crypto.randomUUID();
         
         // Process the URL (this would be better as a background job in production)
-        const booksWithRatings = await analyzeBundleUrl(bundleUrl);
+        const { bundle, books: booksWithRatings } = await analyzeBundleUrl(bundleUrl);
         
         // Store the results
         results.set(id, {
           url: bundleUrl,
           timestamp: new Date().toISOString(),
+          bundle,
           books: booksWithRatings
         });
         
-        return new Response(JSON.stringify({ id, bookCount: booksWithRatings.length }), {
+        return new Response(JSON.stringify({ id, bundleName: bundle.name, bookCount: booksWithRatings.length }), {
           headers: { "Content-Type": "application/json" }
         });
       } catch (error: any) {

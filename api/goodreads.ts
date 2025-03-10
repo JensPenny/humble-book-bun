@@ -21,7 +21,7 @@ export async function getGoodreadsRating(book: BookItem): Promise<GoodreadsRatin
     
     if (!searchResponse.ok) {
       console.error(`Failed to search Goodreads: ${searchResponse.status}`);
-      return { ratingValue: null, ratingCount: null, reviewCount: null };
+      return { ratingValue: null, ratingCount: null, reviewCount: null, url: searchUrl };
     }
     
     const searchHtml = await searchResponse.text();
@@ -30,7 +30,7 @@ export async function getGoodreadsRating(book: BookItem): Promise<GoodreadsRatin
     const bookUrlMatch = searchHtml.match(/href="(\/book\/show\/[^"]+)"/);
     if (!bookUrlMatch) {
       console.log(`No Goodreads results found for: ${book.human_name}`);
-      return { ratingValue: null, ratingCount: null, reviewCount: null };
+      return { ratingValue: null, ratingCount: null, reviewCount: null, url: searchUrl };
     }
     
     const bookRelativeUrl = bookUrlMatch[1];
@@ -48,7 +48,7 @@ export async function getGoodreadsRating(book: BookItem): Promise<GoodreadsRatin
     
     if (!bookResponse.ok) {
       console.error(`Failed to fetch book page: ${bookResponse.status}`);
-      return { ratingValue: null, ratingCount: null, reviewCount: null };
+      return { ratingValue: null, ratingCount: null, reviewCount: null, url: bookUrl };
     }
     
     const bookHtml = await bookResponse.text();
@@ -123,7 +123,8 @@ export async function getGoodreadsRating(book: BookItem): Promise<GoodreadsRatin
     const rating: GoodreadsRating = {
       ratingValue,
       ratingCount,
-      reviewCount
+      reviewCount, 
+      url: bookUrl,
     };
     
     if (ratingValue !== null) {
@@ -135,7 +136,7 @@ export async function getGoodreadsRating(book: BookItem): Promise<GoodreadsRatin
     return rating;
   } catch (error) {
     console.error(`Error getting Goodreads rating for "${book.human_name}":`, error);
-    return { ratingValue: null, ratingCount: null, reviewCount: null };
+    return { ratingValue: null, ratingCount: null, reviewCount: null, url: null };
   }
 }
 

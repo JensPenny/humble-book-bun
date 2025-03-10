@@ -2,7 +2,7 @@ export interface Bundle {
     name: string;
     author: string;
     type: string;
-    url: string;
+    url: string; // The bundle URL
     start_bundle: Date;
     end_bundle: Date;
 }
@@ -19,6 +19,7 @@ export interface Developer {
 }
 
 export interface GoodreadsRating {
+    url: string | null; // The used goodreads URL
     ratingValue: number | null;
     ratingCount: number | null;
     reviewCount: number | null;

@@ -30,6 +30,7 @@ CREATE TABLE book (
     rating_count INTEGER,  -- Number of ratings on Goodreads
     review_count INTEGER,  -- Number of reviews on Goodreads
     created_ts INTEGER NOT NULL, -- When this record was created
+    developer TEXT, -- The author or developer of this book
     FOREIGN KEY(bundle_id) REFERENCES bundle(bundle_id) ON DELETE CASCADE
 );
 
@@ -37,20 +38,21 @@ CREATE TABLE book (
 CREATE INDEX i_book_bundle_id ON book(bundle_id);
 CREATE INDEX i_book_name ON book(name);
 
--- Developer table: Stores information about book authors/developers
-CREATE TABLE developer (
-    developer_id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE -- Author/developer name
-);
+-- On second thought, I don't think we need developers as a linked table at this moment. We can just push this information in the main book table
+-- -- Developer table: Stores information about book authors/developers
+-- CREATE TABLE developer (
+--     developer_id INTEGER PRIMARY KEY,
+--     name TEXT NOT NULL UNIQUE -- Author/developer name
+-- );
 
--- Index for developer table
-CREATE INDEX i_developer_name ON developer(name);
+-- -- Index for developer table
+-- CREATE INDEX i_developer_name ON developer(name);
 
--- Book-Developer junction table: Links books to their authors/developers
-CREATE TABLE book_developer (
-    book_id INTEGER,
-    developer_id INTEGER,
-    PRIMARY KEY (book_id, developer_id),
-    FOREIGN KEY(book_id) REFERENCES book(book_id) ON DELETE CASCADE,
-    FOREIGN KEY(developer_id) REFERENCES developer(developer_id) ON DELETE CASCADE
-);
+-- -- Book-Developer junction table: Links books to their authors/developers
+-- CREATE TABLE book_developer (
+--     book_id INTEGER,
+--     developer_id INTEGER,
+--     PRIMARY KEY (book_id, developer_id),
+--     FOREIGN KEY(book_id) REFERENCES book(book_id) ON DELETE CASCADE,
+--     FOREIGN KEY(developer_id) REFERENCES developer(developer_id) ON DELETE CASCADE
+-- );
