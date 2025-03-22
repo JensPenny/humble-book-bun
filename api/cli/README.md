@@ -67,3 +67,6 @@ The API client:
 - Book bundles for TTRPG's may have some names that clash with existing books.
   For example: `Cat's Cradle` is a book in a TTRPG bundle, but is a book from `Kurt Vonnegut` as well. So these will fail. 
   The reason for this is that the goodreads search is implemented with a pretty basic string search on title.
+- This also means that for some programming books with very generic titles, this will be the case as well
+   - Any (tested) tips on how to overcome this are welcome. 
+     Most solutions like checking for an author in the search just break a lot of actually working matches as well.
