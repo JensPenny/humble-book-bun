@@ -9,13 +9,10 @@ This project will have a couple of systems:
 
 1. A definition of a SQL database scheme that will contain the information about the humble book bundles.
 2. A script that can fetch this data based on an URL of a book bundle. 
-3. A front-end site that can fetch this information.
+3. A component that can save this information to a postgres- or sqlite database system. 
 
-Deployment-wise, the current plan is the following:
-
-1. Create the tables in cloudflare D1 (or in a local postgres).
-2. Adapt the script so that it can add rows in the cloudflare / SQL database, whichever one we use.
-3. Change the front-end so that it can read from the SQL database. 
+Deployment-wise, this will probably be deployed on a private server.
+The only use of this project is to save the humble bundle information to a database, so that we can do stuff with that in a later system.
 
 ## Database scheme
 
@@ -24,8 +21,8 @@ The basic SQL will contain the following table schemes:
 
 1. `bundle`: The bundle table with the generic information of the bundle itself
 2. `book`: A single book in a book bundle
-3. `developer`: Authors/developers of books
-4. `book_developer`: Junction table linking books to their authors/developers
+3. (currently unused) `developer`: Authors/developers of books
+4. (currently unused )`book_developer`: Junction table linking books to their authors/developers
 
 ### SQL
 For the actual SQL, see [the create statements](../db/create_database.sql).

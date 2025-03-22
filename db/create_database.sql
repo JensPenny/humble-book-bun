@@ -2,8 +2,8 @@
 -- This file contains all the SQL statements needed to create the database schema
 
 -- Bundle table: Stores information about Humble Bundles
-CREATE TABLE bundle (
-    bundle_id INTEGER PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS bundle (
+    bundle_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     name TEXT NOT NULL, 
     type TEXT NOT NULL, 
     url TEXT NOT NULL,
@@ -19,8 +19,8 @@ CREATE INDEX i_bundle_start ON bundle(start_bundle);
 CREATE INDEX i_bundle_end ON bundle(end_bundle);
 
 -- Book table: Stores information about individual books in bundles
-CREATE TABLE book (
-    book_id INTEGER PRIMARY KEY, 
+CREATE TABLE IF NOT EXISTS book (
+    book_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY, 
     bundle_id INTEGER NOT NULL, 
     name TEXT NOT NULL, 
     description TEXT,      -- Book description

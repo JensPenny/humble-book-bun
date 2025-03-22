@@ -1,195 +1,188 @@
 import type { Bundle, BookItem, GoodreadsRating } from "./types";
-import type { D1Database, D1PreparedStatement, D1Result } from "@cloudflare/workers-types";
+import { sql, SQL } from "bun";
+
+// Global initialized for connection pooling purposes
+const db = new SQL({
+  // Required
+  // url: "postgres://user:pass@localhost:5432/dbname", // Filled in by .env parameters - https://bun.sh/docs/api/sql#database-environment-variables
+
+  // Optional configuration
+  // hostname: "localhost",
+  // port: 5432,
+  // database: "myapp",
+  // username: "dbuser",
+  // password: "secretpass",
+
+  // Connection pool settings
+  max: 20, // Maximum connections in pool
+  idleTimeout: 30, // Close idle connections after 30s
+  maxLifetime: 0, // Connection lifetime in seconds (0 = forever)
+  connectionTimeout: 30, // Timeout when establishing new connections
+
+  // SSL/TLS options
+  tls: true,
+  // tls: {
+  //   rejectUnauthorized: true,
+  //   requestCert: true,
+  //   ca: "path/to/ca.pem",
+  //   key: "path/to/key.pem",
+  //   cert: "path/to/cert.pem",
+  //   checkServerIdentity(hostname, cert) {
+  //     ...
+  //   },
+  // },
+
+  // Callbacks
+  onconnect: client => {
+    console.log("Connected to database");
+  },
+  onclose: client => {
+    console.log("Connection closed");
+  },
+},
+)
 
 /**
- * Uploads a single bundle and its associated books to the D1 database
- * @param db The D1 database instance
+ * Persists a single bundle and its associated books to the database
  * @param bundle The bundle data
  * @param booksWithRatings The books with their Goodreads ratings
  * @returns Object containing the inserted bundle ID and book IDs
  */
-export async function uploadBundleData(
-  db: D1Database,
+export async function persistBundle(
   bundle: Bundle,
   booksWithRatings: Array<BookItem & { rating: GoodreadsRating }>
-) {
+): Promise<{ bundleId: number; bookIds: number[]; }> {
   // Start a transaction to ensure data consistency
-  return await db.batch([
-    // First, insert the bundle
-    db.prepare(
-      `INSERT INTO bundle (name, type, url, start_bundle, end_bundle, created_ts)
-       VALUES (?, ?, ?, ?, ?, ?)
-       RETURNING bundle_id`
-    ).bind(
-      bundle.name,
-      bundle.type,
-      bundle.url,
-      Math.floor(bundle.start_bundle.getTime() / 1000), // Convert to Unix timestamp
-      Math.floor(bundle.end_bundle.getTime() / 1000),   // Convert to Unix timestamp
-      Math.floor(Date.now() / 1000)                     // Current timestamp
-    ),
-  ]).then(async (results: any) => {
-    // Get the inserted bundle ID
-    const bundleId = results[0].results[0].bundle_id as number;
-    
-    // Now insert all the books and their developers
-    const bookIds = await uploadBooksData(db, bundleId, booksWithRatings);
-    
-    return {
-      bundleId,
-      bookIds
-    };
-  });
+  try {
+    // Insert the bundle
+    const inserted = await sql`
+    INSERT INTO bundle (name, type, url, start_bundle, end_bundle, created_ts)
+    VALUES (
+      ${bundle.name}, 
+      ${bundle.type}, 
+      ${bundle.url}, 
+      ${Math.floor(bundle.start_bundle.getTime() / 1000)}, 
+      ${Math.floor(bundle.end_bundle.getTime() / 1000)}, 
+      ${Math.floor(Date.now() / 1000)}
+    )
+    RETURNING bundle_id
+    `;
+
+    console.log("successfully inserted bundle to DB: ", inserted);
+
+    const bundleId = inserted[0].bundle_id as number;
+
+    // Insert the books
+    try {
+      const bookIds = await persistBundleBooks(bundleId, booksWithRatings);
+      return {
+        bundleId: bundleId,
+        bookIds: bookIds,
+      };
+    } catch (err) {
+      console.error(`Could not persist bundle books: ${err}`);
+      throw err; // Re-throw to propagate the error
+    }
+  } catch (err) {
+    console.error(`Could not persist bundle: ${err}`);
+    throw err; // Re-throw to propagate the error
+  }
 }
 
 /**
- * Uploads multiple books and their developers to the D1 database
- * @param db The D1 database instance
+ * Persists multiple books and their developers to the database
  * @param bundleId The ID of the bundle these books belong to
  * @param booksWithRatings The books with their Goodreads ratings
  * @returns Array of inserted book IDs
  */
-export async function uploadBooksData(
-  db: D1Database,
+export async function persistBundleBooks(
   bundleId: number,
   booksWithRatings: Array<BookItem & { rating: GoodreadsRating }>
 ): Promise<number[]> {
   const bookIds: number[] = [];
 
-  const statements: D1PreparedStatement[] = [];
-  for (const book of booksWithRatings){
-    const statement = db.prepare(
-      `INSERT INTO book (
-        bundle_id, name, description, content_type, url,
-        rating_average, rating_count, review_count, created_ts
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      RETURNING book_id, name`
-    ).bind(
-      bundleId,
-      book.human_name,
-      book.description_text,
-      book.item_content_type,
-      book.rating.url || null, // Persist the rating as the book URL for now. Only split this if you later want multiple rating systems
-      book.rating.ratingValue || null,
-      book.rating.ratingCount || null,
-      book.rating.reviewCount || null,
-      Math.floor(Date.now() / 1000),
-    );
-
-    statements.push(statement);
+  const rowObjectsToInsert: {
+    bundle_id: number; name: string; description: string; content_type: string; url: string | null; // Persist the rating as the book URL for now. Only split this if you later want multiple rating systems
+    rating_average: number | null; rating_count: number | null; review_count: number | null; created_ts: number; developer: string;
+  }[] = [];
+  for (const book of booksWithRatings) {
+    rowObjectsToInsert.push({
+      bundle_id: bundleId,
+      name: book.human_name,
+      description: book.description_text,
+      content_type: book.item_content_type,
+      url: book.rating.url || null, // Persist the rating as the book URL for now. Only split this if you later want multiple rating systems
+      rating_average: book.rating.ratingValue || null,
+      rating_count: book.rating.ratingCount || null,
+      review_count: book.rating.reviewCount || null,
+      created_ts: Math.floor(Date.now() / 1000),
+      developer: book.developers.map(d => d.developer_name).join(","),
+    })
   }
 
-  //Do the actual database call
-  const bookResults = await db.batch(statements);
-  if (!bookResults) {
-    throw new Error(`Could not get to D1 to batch create the books information`);
-  }
-
-  // Logging for the books based on the D1Results that we get back
-  for (const d1_result of bookResults) {
-    console.log(d1_result.success + ": " + d1_result.meta); // Console.log the full success and meta line 
-    
-    // Since we only always do single inserts, we just take the first result
-    const first = d1_result.results[0] as {book_id: number, name: string} // Typed as a return tuple. See the insert statement for details
-    console.log(`Persisted ${first.book_id} - ${first.name}`);
-
-    // Append to the list of persisted book-ids. Mostly if we want to do stuff here later
-    bookIds.push(first.book_id);
-  }
+  console.log("Starting transaction for book inserts...");
+  let bookResults = [];
   
-  return bookIds;
-}
-
-class CloudflareD1Client {
-  private url: string;
-  private headers: HeadersInit;
-
-  constructor(accountId: string, apiToken: string) {
-    this.url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/d1/database/${DATABASE_ID}`
-    this.headers = {
-      'Authorization': `Bearer ${apiToken}`,
-      'Content-Type': 'application/json',
-    };
-  }
-
-  async executeSingle(query: string, params: any[] = []): Promise<D1Result> {
-    const response = await fetch(`${this.url}/query`, {
-      method: 'POST',
-      headers: this.headers,
-      body: JSON.stringify({
-        sql: query,
-        params: params
-      })
-    });
-
-    if (!response.ok) {
-      const err_text = await response.text();
-      throw new Error(`Could not connect to the cloudflare API: ${response.status} - ${err_text}`);
-    }
-
-    const data = await response.json();
-    if (!data.success) {
-      throw new Error(`Cloudflare API error: ${JSON.stringify(data.errors)}`);
-    }
-
-    return data.result as D1Result; // The format for the API is the same as a D1 Result - lets hope it stays that way
-  }
-
-  async executeBatch(queries: { sql: string, params: any[] }[]): Promise<D1Result[]> {
-    // Step 1 - Convert each query object to a raw SQL string with parameters substituted
-    const processedQueries = queries.map(query => {
-      let sql = query.sql;
-      const params = query.params || [];
+  try {
+    // Use a transaction for all book inserts
+    const bookResultsArray = await sql.begin(async tx => {
+      console.log("Transaction started");
+      const results = [];
       
-      // Replace each ? placeholder with the corresponding parameter value
-      // This is a simplified approach
-      params.forEach((param, index) => {
-        let paramValue: string;
-        
-        if (param === null) {
-          paramValue = 'NULL';
-        } else if (typeof param === 'string') {
-          // Escape single quotes in strings
-          paramValue = `'${param.replace(/'/g, "''")}'`;
-        } else if (typeof param === 'number' || typeof param === 'boolean') {
-          paramValue = param.toString();
-        } else if (param instanceof Date) {
-          paramValue = `'${param.toISOString()}'`;
-        } else {
-          // For objects or arrays, convert to JSON string
-          paramValue = `'${JSON.stringify(param).replace(/'/g, "''")}'`;
+      for (const row of rowObjectsToInsert) {
+        console.log(`Inserting book: ${row.name}`);
+        try {
+          const result = await tx`
+            INSERT INTO book (
+              bundle_id, name, description, content_type, url,
+              rating_average, rating_count, review_count, created_ts, developer
+            ) 
+            VALUES (
+              ${row.bundle_id},
+              ${row.name},
+              ${row.description},
+              ${row.content_type},
+              ${row.url},
+              ${row.rating_average},
+              ${row.rating_count},
+              ${row.review_count},
+              ${row.created_ts},
+              ${row.developer}
+            )
+            RETURNING book_id, name
+          `;
+          console.log(`Book insert result:`, result);
+          results.push(result);
+        } catch (err) {
+          console.error(`Error inserting book ${row.name}:`, err);
+          throw err; // Re-throw to roll back the transaction
         }
-        
-        // Replace the first occurrence of ? with the parameter value
-        sql = sql.replace('?', paramValue);
-      });
+      }
       
-      return sql;
+      console.log("All book inserts completed successfully");
+      return results;
     });
     
-    // Step 2 - Join all SQL statements with semicolons
-    const combinedSql = processedQueries.join('; ');
+    console.log("Transaction completed successfully");
+    console.log("Book results array:", bookResultsArray);
     
-    // Step 3 - Make the API request with the combined SQL
-    const response = await fetch(`${this.url}/query`, {
-      method: 'POST',
-      headers: this.headers,
-      body: JSON.stringify({
-        sql: combinedSql
-      })
-    });
-    
-    if (!response.ok) {
-      const err_text = await response.text();
-      throw new Error(`Could not connect to the cloudflare API for batch operation: ${response.status} - ${err_text}`);
-    }
-    
-    const data = await response.json();
-    if (!data.success) {
-      throw new Error(`Cloudflare API error: ${JSON.stringify(data.errors)}`);
-    }
-    
-    // The API returns results for each statement in the batch
-    return data.result as D1Result[];
+    // Flatten the results
+    bookResults = bookResultsArray.flat();
+    console.log("Flattened book results:", bookResults);
+  } catch (err) {
+    console.error("Transaction failed:", err);
+    throw err;
   }
+
+  if (bookResults.length === 0) {
+    throw new Error(`Could not persist books in the DB`);
+  }
+
+  // Process the results and collect book IDs
+  for (const book of bookResults) {
+    console.log(`Persisted ${book.book_id} - ${book.name}`);
+    bookIds.push(book.book_id);
+  }
+
+  return bookIds;
 }

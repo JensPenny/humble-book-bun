@@ -103,8 +103,12 @@ web_modules/
 .env
 .env.development.local
 .env.test.local
+.env.test
 .env.production.local
 .env.local
+
+# local dockerfiles
+local-docker-compose.yaml
 
 # parcel-bundler cache (https://parceljs.org/)
 

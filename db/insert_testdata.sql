@@ -14,7 +14,7 @@ VALUES (
 -- Insert a sample book
 INSERT INTO book (
     bundle_id, name, description, content_type, url,
-    rating_average, rating_count, review_count, created_ts
+    rating_average, rating_count, review_count, created_ts, developer
 )
 VALUES (
     1, -- bundle_id from the bundle table
@@ -25,13 +25,14 @@ VALUES (
     4.2, -- Average rating
     120, -- Number of ratings
     35,  -- Number of reviews
-    strftime('%s', 'now') -- Current timestamp
+    strftime('%s', 'now'), -- Current timestamp
+    "test, test2" -- authors / developers. Now merged in this table 
 );
 
--- Insert a sample developer/author
-INSERT INTO developer (name)
-VALUES ('Jane Smith');
+-- -- Insert a sample developer/author
+-- INSERT INTO developer (name)
+-- VALUES ('Jane Smith');
 
--- Link the book to its author
-INSERT INTO book_developer (book_id, developer_id)
-VALUES (1, 1);
+-- -- Link the book to its author
+-- INSERT INTO book_developer (book_id, developer_id)
+-- VALUES (1, 1);
