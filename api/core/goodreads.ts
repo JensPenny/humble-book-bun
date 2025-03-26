@@ -1,4 +1,4 @@
-import type { BookItem, GoodreadsRating } from "./types";
+import type { BookItem, GoodreadsRating } from "../types";
 
 /**
  * Scrapes Goodreads to get the rating information for a book

@@ -1,4 +1,4 @@
-import type { Bundle, BookItem, GoodreadsRating } from "./types";
+import type { Bundle, BookItem, GoodreadsRating } from "../types";
 import { sql, SQL } from "bun";
 
 // Global initialized for connection pooling purposes

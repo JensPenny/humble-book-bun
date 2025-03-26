@@ -1,4 +1,5 @@
 // Script to fetch and save HTML from a Goodreads page
+// This script is used to fetch a goodreads page, and to see how we can extract the required information from this.
 const url = 'https://www.goodreads.com/book/show/42399429-how-javascript-works';
 
 async function fetchAndSaveHTML() {
@@ -7,7 +8,7 @@ async function fetchAndSaveHTML() {
     
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'User-Agent': 'humble-bundle-bun',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.5',
       }

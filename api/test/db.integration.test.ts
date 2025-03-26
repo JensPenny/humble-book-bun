@@ -1,5 +1,5 @@
 import { describe, test, expect, spyOn, mock, beforeAll } from "bun:test";
-import { persistBundle } from "../db";
+import { persistBundle } from "../core/db";
 import type { Bundle, BookItem, GoodreadsRating } from "../types";
 import * as bun from "bun";
 import { SQL } from "bun";

@@ -1,5 +1,5 @@
 import { analyzeBundleUrl } from "../core/humble";
-import { uploadBundleData } from "../db";
+import { uploadBundleData } from "../core/db";
 import type { D1Database } from "@cloudflare/workers-types";
 
 const DEFAULT_URL = "https://www.humblebundle.com/books/computer-science-fun-way-no-starch-books";

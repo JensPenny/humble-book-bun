@@ -3,7 +3,7 @@ import { analyzeBundleUrl } from "../core/humble";
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import * as fs from 'fs';
-import { persistBundle } from "../db";
+import { persistBundle } from "../core/db";
 
 // Load environment variables from .env.local file
 const envPath = path.resolve(__dirname, '../.env.local');

@@ -1,6 +1,6 @@
 import type { BookItem, GoodreadsRating, Bundle } from "../types";
 import { UnmarshalBookItem } from "../types";
-import { getGoodreadsRatings } from "../goodreads";
+import { getGoodreadsRatings } from "./goodreads";
 
 export async function fetchBundlePage(url: string): Promise<string> {
   const response = await fetch(url, {
