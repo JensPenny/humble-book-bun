@@ -8,7 +8,7 @@
     "server": "bun --watch run api/index.ts --server",
     "frontend:dev": "vite --config vite.config.ts",
     "frontend:build": "vite build --config vite.config.ts",
-    "frontend:type-check": "vue-tsc --noEmit",
+    "frontend:type-check": "vue-tsc --noEmit"
   },
   "devDependencies": {
     "@types/bun": "latest",

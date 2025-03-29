@@ -1,0 +1,84 @@
+---
+interface Props {
+  id: number;
+  name: string;
+  type: string;
+  url: string;
+  startDate: string;
+  endDate: string;
+}
+
+const { id, name, type, url, startDate, endDate } = Astro.props;
+
+// Format dates
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
+const start = formatDate(startDate);
+const end = formatDate(endDate);
+
+// Calculate if bundle is active
+const now = new Date();
+const endDateObj = new Date(endDate);
+const isActive = now < endDateObj;
+---
+
+<div class="card bundle-card">
+  <div class="bundle-status">
+    {isActive ? <span class="badge active">Active</span> : <span class="badge inactive">Ended</span>}
+    <span class="badge type">{type}</span>
+  </div>
+  <h3 class="bundle-title">{name}</h3>
+  <div class="bundle-dates">
+    <p>Available: {start} - {end}</p>
+  </div>
+  <a href={`/bundles/${id}`} class="btn">View Bundle</a>
+</div>
+
+<style>
+  .bundle-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .bundle-title {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+  
+  .bundle-status {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+  
+  .bundle-dates {
+    margin-bottom: 1rem;
+    color: var(--text-light);
+    font-size: 0.9rem;
+  }
+  
+  .badge.active {
+    background-color: #4caf50;
+  }
+  
+  .badge.inactive {
+    background-color: #9e9e9e;
+  }
+  
+  .badge.type {
+    background-color: var(--accent);
+  }
+  
+  .btn {
+    margin-top: auto;
+  }
+</style>

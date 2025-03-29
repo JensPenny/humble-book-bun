@@ -1,0 +1,72 @@
+---
+import Layout from '../layouts/Layout.astro';
+import BundleCard from '../components/BundleCard.astro';
+import bundles from '../../data/bundles.json';
+
+// Sort bundles by start date (newest first)
+const sortedBundles = [...bundles].sort((a, b) => {
+  return new Date(b.start_date).getTime() - new Date(a.start_date).getTime();
+});
+
+// Separate active and ended bundles
+const now = new Date();
+const activeBundles = sortedBundles.filter(bundle => new Date(bundle.end_date) > now);
+const endedBundles = sortedBundles.filter(bundle => new Date(bundle.end_date) <= now);
+---
+
+<Layout title="Humble Bundle Books Collection">
+	<section class="hero">
+		<h1>Humble Bundle Books Collection</h1>
+		<p>Browse through our collection of book bundles from Humble Bundle.</p>
+	</section>
+
+	<section>
+		<h2>Active Bundles</h2>
+		{activeBundles.length === 0 ? (
+			<p>No active bundles at the moment.</p>
+		) : (
+			<div class="card-grid">
+				{activeBundles.map(bundle => (
+					<BundleCard
+						id={bundle.id}
+						name={bundle.name}
+						type={bundle.type}
+						url={bundle.url}
+						startDate={bundle.start_date}
+						endDate={bundle.end_date}
+					/>
+				))}
+			</div>
+		)}
+	</section>
+
+	<section>
+		<h2>Past Bundles</h2>
+		<div class="card-grid">
+			{endedBundles.map(bundle => (
+				<BundleCard
+					id={bundle.id}
+					name={bundle.name}
+					type={bundle.type}
+					url={bundle.url}
+					startDate={bundle.start_date}
+					endDate={bundle.end_date}
+				/>
+			))}
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.hero {
+		text-align: center;
+		padding: 2rem 0;
+		margin-bottom: 2rem;
+		background-color: var(--background-light);
+		border-radius: 8px;
+	}
+
+	section {
+		margin-bottom: 3rem;
+	}
+</style>

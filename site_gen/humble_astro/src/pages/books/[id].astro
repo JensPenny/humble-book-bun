@@ -1,0 +1,167 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import books from '../../../data/books.json';
+
+export function getStaticPaths() {
+  return books.map(book => ({
+    params: { id: book.id.toString() },
+  }));
+}
+
+const { id } = Astro.params;
+const bookId = parseInt(id);
+
+// Find the book
+const book = books.find(b => b.id === bookId);
+
+if (!book) {
+  return Astro.redirect('/404');
+}
+
+// Generate star rating
+const generateStars = (rating: number) => {
+  const fullStars = Math.floor(rating);
+  const halfStar = rating % 1 >= 0.5;
+  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+  
+  let stars = '';
+  for (let i = 0; i < fullStars; i++) {
+    stars += '★';
+  }
+  if (halfStar) {
+    stars += '½';
+  }
+  for (let i = 0; i < emptyStars; i++) {
+    stars += '☆';
+  }
+  
+  return stars;
+};
+
+// Format date
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
+const stars = generateStars(book.rating_average || 0);
+const created = formatDate(book.created);
+---
+
+<Layout title={book.name}>
+  <div class="book-header">
+    <div class="book-info">
+      <h1>{book.name}</h1>
+      
+      <div class="book-meta">
+        <div class="book-badges">
+          <span class="badge content-type">{book.content_type}</span>
+          {book.developers && <span class="badge developer">{book.developers}</span>}
+        </div>
+        
+        <div class="rating">
+          <div class="rating-stars">{stars}</div>
+          <div class="rating-count">
+            ({(book.rating_average || 0).toFixed(1)}) 
+            {book.rating_count || 0} ratings • 
+            {book.review_count || 0} reviews
+          </div>
+        </div>
+        
+        <div class="date">
+          <p>Added on {created}</p>
+        </div>
+      </div>
+      
+      {book.bundle_id && book.bundle_name && (
+        <div class="book-bundle">
+          <p>From bundle: <a href={`/bundles/${book.bundle_id}`}>{book.bundle_name}</a></p>
+        </div>
+      )}
+      
+      {book.url && (
+        <a href={book.url} 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           class="btn">
+          View on Goodreads
+        </a>
+      )}
+    </div>
+  </div>
+  
+  <section>
+    <h2>Description</h2>
+    <div class="description" set:html={book.description} />
+  </section>
+  
+  <div class="back-links">
+    {book.bundle_id ? (
+      <a href={`/bundles/${book.bundle_id}`} class="btn btn-secondary">← Back to Bundle</a>
+    ) : (
+      <a href="/" class="btn btn-secondary">← Back to Home</a>
+    )}
+  </div>
+</Layout>
+
+<style>
+  .book-header {
+    background-color: var(--background-light);
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .book-meta {
+    margin: 1rem 0 1.5rem;
+  }
+  
+  .book-badges {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+  }
+  
+  .book-bundle {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .badge.content-type {
+    background-color: var(--accent);
+  }
+  
+  .badge.developer {
+    background-color: var(--accent-light);
+  }
+  
+  section {
+    margin-bottom: 3rem;
+  }
+  
+  .description {
+    line-height: 1.7;
+  }
+  
+  .description :global(p) {
+    margin-bottom: 1rem;
+  }
+  
+  .description :global(ul), .description :global(ol) {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+  
+  .description :global(li) {
+    margin-bottom: 0.5rem;
+  }
+  
+  .back-links {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+</style>
