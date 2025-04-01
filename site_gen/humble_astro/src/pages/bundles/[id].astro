@@ -15,6 +15,10 @@ const bundleId = parseInt(id);
 
 // Find the bundle with books
 const bundleWithBooks = bundlesWithBooks.find(bundle => bundle.id === bundleId);
+const books = bundleWithBooks?.books.sort((l, r) => {
+  return (r.rating_average || 0) - (l.rating_average || 0)
+  || (r.review_count || 0) - (l.review_count || 0);
+});
 
 if (!bundleWithBooks) {
   return Astro.redirect('/404');
@@ -87,7 +91,7 @@ if (isActive) {
         <div class="book-rating-header">Rating</div>
         <div class="book-actions-header">Links</div>
       </div>
-      {bundleWithBooks.books && bundleWithBooks.books.map(book => (
+      {books && books.map(book => (
         <BookListItem
           id={book.id}
           name={book.name}
