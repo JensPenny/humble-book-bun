@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import BookCard from '../../components/BookCard.astro';
+import BookListItem from '../../components/BookListItem.astro';
 import bundles from '../../../data/bundles.json';
 import bundlesWithBooks from '../../../data/bundles_with_books.json';
 
@@ -61,8 +61,10 @@ if (isActive) {
         </div>
         
         <div class="bundle-dates">
-          <!-- <p>Available: {startDate} - {endDate}</p> -->
-          <p>Available until: {endDate}</p>
+          {isActive ? 
+          <p>Available until: {endDate}</p> :
+          <p>Available: {startDate} - {endDate}</p>
+        }
         </div>
       </div>
       
@@ -79,17 +81,20 @@ if (isActive) {
   
   <section>
     <h2>Books in this Bundle</h2>
-    <div class="card-list">
+    <div class="book-list">
+      <div class="book-list-header">
+        <div class="book-info-header">Book</div>
+        <div class="book-rating-header">Rating</div>
+        <div class="book-actions-header">Links</div>
+      </div>
       {bundleWithBooks.books && bundleWithBooks.books.map(book => (
-        <BookCard
+        <BookListItem
           id={book.id}
           name={book.name}
-          description={book.description || ""}
           contentType={book.content_type}
           url={book.url || ""}
           ratingAverage={book.rating_average || 0}
           ratingCount={book.rating_count || 0}
-          reviewCount={book.review_count || 0}
           developers={book.developers || ""}
         />
       ))}
@@ -143,5 +148,30 @@ if (isActive) {
   .back-link {
     margin-top: 2rem;
     margin-bottom: 2rem;
+  }
+  
+  .book-list {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .book-list-header {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr;
+    background-color: var(--background-light);
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+    gap: 1rem;
+  }
+  
+  .book-info-header, .book-rating-header, .book-actions-header {
+    font-size: 0.9rem;
+    color: var(--text-light);
+  }
+  
+  .book-actions-header {
+    text-align: right;
   }
 </style>

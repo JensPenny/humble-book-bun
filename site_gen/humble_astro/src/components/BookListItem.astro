@@ -1,0 +1,157 @@
+---
+interface Props {
+  id: number;
+  name: string;
+  contentType: string;
+  url: string;
+  ratingAverage: number;
+  ratingCount: number;
+  developers: string;
+}
+
+const { 
+  id, 
+  name, 
+  contentType, 
+  url, 
+  ratingAverage, 
+  ratingCount, 
+  developers
+} = Astro.props;
+
+// Generate star rating
+const generateStars = (rating: number) => {
+  const fullStars = Math.floor(rating);
+  const halfStar = rating % 1 >= 0.5;
+  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+  
+  let stars = '';
+  for (let i = 0; i < fullStars; i++) {
+    stars += '★';
+  }
+  if (halfStar) {
+    stars += '½';
+  }
+  for (let i = 0; i < emptyStars; i++) {
+    stars += '☆';
+  }
+  
+  return stars;
+};
+
+const stars = generateStars(ratingAverage);
+---
+
+<div class="book-list-item">
+  <div class="book-info">
+    <div class="book-title-container">
+      <h4 class="book-title">
+        <a href={`/books/${id}`}>{name}</a>
+      </h4>
+    </div>
+    <div class="book-meta">
+      <!-- <span class="badge content-type">{contentType}</span> -->
+      {developers && <span class="badge developer">{developers}</span>}
+    </div>
+  </div>
+  <div class="book-rating">
+    <div class="rating-stars">{stars}</div>
+    <div class="rating-count">{ratingAverage.toFixed(1)} ({ratingCount})</div>
+  </div>
+  <div class="book-actions">
+    {url && <a href={url} target="_blank" rel="noopener noreferrer" class="goodreads-btn">Goodreads</a>}
+  </div>
+</div>
+
+<style>
+  .book-list-item {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    gap: 1rem;
+  }
+  
+  .book-list-item:hover {
+    background-color: var(--background-light);
+  }
+  
+  .book-title {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+  
+  .book-title a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  
+  .book-title a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+  
+  .book-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+  
+  .book-rating {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .rating-stars {
+    color: #f9a825;
+    font-size: 0.9rem;
+  }
+  
+  .rating-count {
+    font-size: 0.8rem;
+    color: var(--text-light);
+  }
+  
+  .book-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: white;
+    margin-right: 0.5rem;
+  }
+  
+  .badge.content-type {
+    background-color: var(--accent);
+  }
+  
+  .badge.developer {
+    background-color: var(--accent-light);
+  }
+  
+  .goodreads-btn {
+    display: inline-block;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.75rem;
+    background-color: var(--accent);
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.2s ease;
+  }
+  
+  .goodreads-btn:hover {
+    background-color: var(--accent-dark, #0056b3);
+  }
+</style>

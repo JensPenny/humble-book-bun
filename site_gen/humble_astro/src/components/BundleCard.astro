@@ -50,8 +50,10 @@ if (isActive) {
     </div>
     <h3 class="bundle-title">{name}</h3>
     <div class="bundle-dates">
-      <!-- <p>Available: {start} - {end}</p> -->
-      <p>Available until: {end}</p>
+      {isActive ? 
+        <p>Available until: {end}</p> :
+        <p>Available: {start} - {end}</p>
+      }
     </div>
     <a href={`/bundles/${id}`} class="btn">View Bundle</a>
   </div>
