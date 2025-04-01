@@ -8,7 +8,8 @@ import type { BookItem, GoodreadsRating } from "../types";
 export async function getGoodreadsRating(book: BookItem): Promise<GoodreadsRating> {
   try {
     // Step 1: Search for the book on Goodreads
-    const searchUrl = `https://www.goodreads.com/search?q=${encodeURIComponent(book.human_name)}`;
+    const devs = book.developers.map(d => d.developer_name).join(" ");
+    const searchUrl = `https://www.goodreads.com/search?q=${encodeURIComponent(book.human_name + " " + devs)}`;
     console.log(`Searching Goodreads for: ${book.human_name}`);
     
     const searchResponse = await fetch(searchUrl, {

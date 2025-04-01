@@ -84,14 +84,24 @@ const created = formatDate(book.created);
       )}
       
       {book.url && (
-        <a href={book.url} 
-           target="_blank" 
-           rel="noopener noreferrer" 
-           class="btn">
-          View on Goodreads
-        </a>
+        <div class="link-container">
+          <a href={book.url} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="btn">
+            View on Goodreads
+          </a>
+          <a href={`https://github.com/JensPenny/humble-book-bun/issues/new?title=Faulty%20Goodreads%20Link:%20${encodeURIComponent(book.name)}&body=${encodeURIComponent(`Book ID: ${book.id}\nBook Title: ${book.name}\nBundle ID: ${book.bundle_id || 'N/A'}\n\nPlease describe the issue with this Goodreads link:`)}`}
+            target="_bl)C~ank"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-secondary report-link">
+            Report Faulty Link
+          </a>
+        </div>
       )}
     </div>
+
   </div>
   
   <section>
@@ -158,6 +168,16 @@ const created = formatDate(book.created);
   
   .description :global(li) {
     margin-bottom: 0.5rem;
+  }
+
+  .link-container {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .report-link {
+    font-size: 0.9rem;
   }
   
   .back-links {

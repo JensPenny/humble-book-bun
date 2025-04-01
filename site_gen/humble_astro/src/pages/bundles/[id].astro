@@ -61,7 +61,8 @@ if (isActive) {
         </div>
         
         <div class="bundle-dates">
-          <p>Available: {startDate} - {endDate}</p>
+          <!-- <p>Available: {startDate} - {endDate}</p> -->
+          <p>Available until: {endDate}</p>
         </div>
       </div>
       
@@ -78,7 +79,7 @@ if (isActive) {
   
   <section>
     <h2>Books in this Bundle</h2>
-    <div class="card-grid">
+    <div class="card-list">
       {bundleWithBooks.books && bundleWithBooks.books.map(book => (
         <BookCard
           id={book.id}

@@ -31,7 +31,7 @@ export function extractBundleData(html: string): { bundle: Bundle, books: BookIt
     author: asJson.bundleData.author,
     type: asJson.bundleData.basic_data.media_type,
     url: asJson.bundleData.page_url, 
-    start_bundle: new Date(), 
+    start_bundle: new Date(asJson.bundleData["at_time|datetime"]), 
     end_bundle: new Date(asJson.bundleData.basic_data["end_time|datetime"]),
   }
 

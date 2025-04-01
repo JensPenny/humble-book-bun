@@ -5,7 +5,7 @@ import bundles from '../../data/bundles.json';
 
 // Sort bundles by start date (newest first)
 const sortedBundles = [...bundles].sort((a, b) => {
-  return new Date(b.start_date).getTime() - new Date(a.start_date).getTime();
+  return new Date(b.end_date).getTime() - new Date(a.end_date).getTime();
 });
 
 // Separate active and ended bundles
@@ -25,7 +25,7 @@ const endedBundles = sortedBundles.filter(bundle => new Date(bundle.end_date) <=
 		{activeBundles.length === 0 ? (
 			<p>No active bundles at the moment.</p>
 		) : (
-			<div class="card-grid">
+			<div class="card-list">
 				{activeBundles.map(bundle => (
 					<BundleCard
 						id={bundle.id}
@@ -42,7 +42,7 @@ const endedBundles = sortedBundles.filter(bundle => new Date(bundle.end_date) <=
 
 	<section>
 		<h2>Past Bundles</h2>
-		<div class="card-grid">
+		<div class="card-list">
 			{endedBundles.map(bundle => (
 				<BundleCard
 					id={bundle.id}
