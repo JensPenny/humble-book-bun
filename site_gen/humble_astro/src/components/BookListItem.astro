@@ -55,7 +55,7 @@ const truncateDescription = (desc: string, maxLength = 150) => {
 };
 
 const stars = generateStars(ratingAverage);
-const truncatedDescription = truncateDescription(description, 150);
+const truncatedDescription = truncateDescription(description, 170);
 
 ---
 
@@ -67,7 +67,7 @@ const truncatedDescription = truncateDescription(description, 150);
       </h4>
     </div>
     <div class="book-meta">
-      {developers && <span>{developers}</span>}
+      {developers && <span>Authors: {developers}</span>}
     </div>
     <p class="book-description">{truncatedDescription}</p>
   </div>
@@ -114,13 +114,16 @@ const truncatedDescription = truncateDescription(description, 150);
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-top: 0.25rem;
+    color: var(--accent);
+    font-size: small;
+    margin-top: 0.1rem;
   }
 
   .book-description {
     display: flex;
     flex-grow: 1;
     margin-bottom: 1rem;
+    margin-top: 0.25rem;
   }
   
   .book-rating {
