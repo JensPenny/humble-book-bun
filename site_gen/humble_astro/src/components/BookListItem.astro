@@ -4,6 +4,7 @@ interface Props {
   name: string;
   contentType: string;
   url: string;
+  description: string;
   ratingAverage: number;
   ratingCount: number;
   developers: string;
@@ -14,6 +15,7 @@ const {
   name, 
   contentType, 
   url, 
+  description,
   ratingAverage, 
   ratingCount, 
   developers
@@ -39,7 +41,22 @@ const generateStars = (rating: number) => {
   return stars;
 };
 
+// Truncate description
+const truncateDescription = (desc: string, maxLength = 150) => {
+  // Remove HTML tags
+  let textOnly = desc.replace(/<\/?[^>]+(>|$)/g, " | ").trim();
+  if (textOnly.at(0) == "|") {
+    textOnly = textOnly.substring(1);
+  }
+
+  if (textOnly.length <= maxLength) return textOnly;
+  
+  return textOnly.substring(0, maxLength) + '...';
+};
+
 const stars = generateStars(ratingAverage);
+const truncatedDescription = truncateDescription(description, 170);
+
 ---
 
 <div class="book-list-item">
@@ -50,9 +67,9 @@ const stars = generateStars(ratingAverage);
       </h4>
     </div>
     <div class="book-meta">
-      <!-- <span class="badge content-type">{contentType}</span> -->
-      {developers && <span class="badge developer">{developers}</span>}
+      {developers && <span>Authors: {developers}</span>}
     </div>
+    <p class="book-description">{truncatedDescription}</p>
   </div>
   <div class="book-rating">
     <div class="rating-stars">{stars}</div>
@@ -97,6 +114,15 @@ const stars = generateStars(ratingAverage);
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+    color: var(--accent);
+    font-size: small;
+    margin-top: 0.1rem;
+  }
+
+  .book-description {
+    display: flex;
+    flex-grow: 1;
+    margin-bottom: 1rem;
     margin-top: 0.25rem;
   }
   
@@ -148,7 +174,6 @@ const stars = generateStars(ratingAverage);
     border-radius: 4px;
     text-decoration: none;
     text-align: center;
-    transition: background-color 0.2s ease;
   }
   
   .goodreads-btn:hover {

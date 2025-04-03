@@ -7,7 +7,7 @@ const { title } = Astro.props;
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content="Humble Bundle Books Collection">
@@ -15,6 +15,20 @@ const { title } = Astro.props;
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+		<!-- Prevent flash of wrong theme -->
+		<script is:inline>
+			(function() {
+				// Immediately check and apply the theme before page renders
+				const savedTheme = localStorage.getItem('theme');
+				if (savedTheme) {
+					document.documentElement.setAttribute('data-theme', savedTheme);
+				} else {
+					// Check system preference
+					const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+					document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+				}
+			})();
+		</script>
 	</head>
 	<body>
 		<header>
@@ -23,6 +37,22 @@ const { title } = Astro.props;
 					<a href="/" class="logo">Humble Bundle Books</a>
 					<ul class="nav-links">
 						<li><a href="/">Home</a></li>
+						<li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+							<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sun-icon">
+								<circle cx="12" cy="12" r="5"></circle>
+								<line x1="12" y1="1" x2="12" y2="3"></line>
+								<line x1="12" y1="21" x2="12" y2="23"></line>
+								<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+								<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+								<line x1="1" y1="12" x2="3" y2="12"></line>
+								<line x1="21" y1="12" x2="23" y2="12"></line>
+								<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+								<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+							</svg>
+							<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="moon-icon">
+								<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+							</svg>
+						</button></li>
 					</ul>
 				</div>
 			</nav>
@@ -35,11 +65,41 @@ const { title } = Astro.props;
 				<p>&copy; {new Date().getFullYear()} Humble Bundle Books Collection</p>
 			</div>
 		</footer>
+
+		<script>
+			// Theme toggle functionality
+			document.addEventListener('DOMContentLoaded', () => {
+				const themeToggle = document.getElementById('theme-toggle');
+				const htmlElement = document.documentElement;
+				
+				// Check for saved theme preference or use system preference
+				const savedTheme = localStorage.getItem('theme');
+				if (savedTheme) {
+					htmlElement.setAttribute('data-theme', savedTheme);
+				} else {
+					// Check system preference
+					const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+					htmlElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+				}
+				
+				// Toggle theme when button is clicked
+				if (themeToggle) {
+					themeToggle.addEventListener('click', () => {
+						const currentTheme = htmlElement.getAttribute('data-theme');
+						const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+						
+						htmlElement.setAttribute('data-theme', newTheme);
+						localStorage.setItem('theme', newTheme);
+					});
+				}
+			});
+		</script>
 	</body>
 </html>
 
 <style is:global>
 	:root {
+		/* Light theme variables (default) */
 		--accent: #e86b1c;
 		--accent-light: #f89e64;
 		--accent-dark: #c24e00;
@@ -48,6 +108,24 @@ const { title } = Astro.props;
 		--background: #ffffff;
 		--background-light: #f5f5f5;
 		--border: #ddd;
+		--border-color: #ddd;
+		--card-shadow: rgba(0, 0, 0, 0.05);
+		--card-shadow-hover: rgba(0, 0, 0, 0.1);
+	}
+	
+	/* Dark theme variables */
+	html[data-theme="dark"] {
+		--accent: #ff8c3f;
+		--accent-light: #ffaa70;
+		--accent-dark: #e86b1c;
+		--text: #e0e0e0;
+		--text-light: #a0a0a0;
+		--background: #121212;
+		--background-light: #1e1e1e;
+		--border: #333;
+		--border-color: #333;
+		--card-shadow: rgba(0, 0, 0, 0.2);
+		--card-shadow-hover: rgba(0, 0, 0, 0.4);
 	}
 	
 	* {
@@ -112,7 +190,7 @@ const { title } = Astro.props;
 	.nav-links a {
 		color: white;
 		text-decoration: none;
-		font-weight: 500;
+		font-weight: 500;		
 		transition: color 0.2s;
 	}
 	
@@ -171,13 +249,13 @@ const { title } = Astro.props;
 		border-radius: 8px;
 		padding: 1.5rem;
 		margin-bottom: 1.5rem;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+		box-shadow: 0 2px 4px var(--card-shadow);
 		transition: transform 0.2s, box-shadow 0.2s;
 	}
 	
 	.card:hover {
 		transform: translateY(-5px);
-		box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+		box-shadow: 0 5px 15px var(--card-shadow-hover);
 	}
 	
 	.card-grid {
@@ -256,5 +334,38 @@ const { title } = Astro.props;
 	
 	.description {
 		margin-top: 1rem;
+	}
+	
+	/* Theme toggle button styles */
+	.theme-toggle {
+		background: none;
+		border: none;
+		color: white;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.5rem;
+		border-radius: 50%;
+	}
+	
+	.theme-toggle:hover {
+		background-color: rgba(255, 255, 255, 0.1);
+	}
+	
+	.sun-icon {
+		display: none;
+	}
+	
+	.moon-icon {
+		display: block;
+	}
+	
+	html[data-theme="dark"] .sun-icon {
+		display: block;
+	}
+	
+	html[data-theme="dark"] .moon-icon {
+		display: none;
 	}
 </style>
