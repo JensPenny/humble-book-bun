@@ -11,7 +11,8 @@ export async function getGoodreadsRating(
   try {
     // Step 1: Search for the book on Goodreads
     const devs = book.developers.map((d) => d.developer_name).join(" ");
-    const searchUrl = `https://www.goodreads.com/search?q=${encodeURIComponent(book.human_name + " " + devs)}`;
+    const titleFirstWords = getWordsFromTitle(book.human_name, 10);
+    const searchUrl = `https://www.goodreads.com/search?q=${encodeURIComponent(titleFirstWords)}`;
     console.log(`Searching Goodreads for: ${book.human_name}`);
 
     const searchResponse = await fetch(searchUrl, {
@@ -180,6 +181,27 @@ export async function getGoodreadsRating(
       reviewCount: null,
       url: null,
     };
+  }
+}
+
+function getWordsFromTitle(title: string, amount: number): string {
+  const regex = /\b\w+\b/g //Match word. Hyphenated counts as multiple
+  let match; 
+  let count = 0;
+  let lastIndex = 0;
+
+  while((match = regex.exec(title)) !== null) {
+    count++;
+    lastIndex = match.index + match[0].length;
+    if (count == amount) {
+      break;
+    }
+  }
+
+  if (lastIndex === 0) {
+    return title;
+  } else {
+    return title.slice(0, lastIndex);
   }
 }
 
