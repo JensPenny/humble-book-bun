@@ -1,20 +1,18 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import BundleCard from '../components/BundleCard.astro';
+import bundles from '../../data/bundles.json';
+
+// Serialize the bundle data to pass to client-side JavaScript
+const bundlesJson = JSON.stringify(bundles);
 ---
 
-<script>
-	interface Bundle {
-		id: number;
-		name: string;
-		type: string;
-		url: string;
-		start_date: string;
-		end_date: string;
-	}
+<script define:vars={{ bundlesJson }}>
+	// Parse the bundle data passed from the server
+	const bundles = JSON.parse(bundlesJson);
 
 	// Format dates
-	const formatDate = (dateString: string): string => {
+	const formatDate = (dateString) => {
 		const date = new Date(dateString);
 		return date.toLocaleDateString("en-US", {
 			year: "numeric",
@@ -24,13 +22,13 @@ import BundleCard from '../components/BundleCard.astro';
 	};
 
 	// Function to calculate and update bundle status for all bundle cards
-	function updateBundleCards(): void {
+	function updateBundleCards() {
 		// Find all bundle cards
 		const bundleCards = document.querySelectorAll('.bundle-card');
 		
 		bundleCards.forEach(card => {
 			// Get date strings from data attributes
-			const cardElement = card as HTMLElement;
+			const cardElement = card;
 			const endDateStr = cardElement.dataset.endDate;
 			const startDateStr = cardElement.dataset.startDate;
 			
@@ -77,16 +75,8 @@ import BundleCard from '../components/BundleCard.astro';
 		});
 	}
 
-	async function updateBundleList(): Promise<void> {
+	function updateBundleList() {
 		try {
-			// Fetch bundle data
-			const response = await fetch('/data/bundles.json');
-			if (!response.ok) {
-				throw new Error('Failed to fetch bundle data');
-			}
-			
-			const bundles: Bundle[] = await response.json();
-			
 			// Sort bundles by end date (newest first)
 			const sortedBundles = [...bundles].sort((a, b) => {
 				return new Date(b.end_date).getTime() - new Date(a.end_date).getTime();
@@ -137,7 +127,7 @@ import BundleCard from '../components/BundleCard.astro';
 		}
 	}
 	
-	function createBundleCardHTML(bundle: Bundle): string {
+	function createBundleCardHTML(bundle) {
 		return `
 			<a href="/bundles/${bundle.id}">
 				<div class="card bundle-card" data-start-date="${bundle.start_date}" data-end-date="${bundle.end_date}">
