@@ -10,15 +10,15 @@ interface Props {
   developers: string;
 }
 
-const { 
-  id, 
-  name, 
-  contentType, 
-  url, 
+const {
+  id,
+  name,
+  contentType,
+  url,
   description,
-  ratingAverage, 
-  ratingCount, 
-  developers
+  ratingAverage,
+  ratingCount,
+  developers,
 } = Astro.props;
 
 // Generate star rating
@@ -26,18 +26,18 @@ const generateStars = (rating: number) => {
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 >= 0.5;
   const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-  
-  let stars = '';
+
+  let stars = "";
   for (let i = 0; i < fullStars; i++) {
-    stars += '★';
+    stars += "★";
   }
   if (halfStar) {
-    stars += '½';
+    stars += "½";
   }
   for (let i = 0; i < emptyStars; i++) {
-    stars += '☆';
+    stars += "☆";
   }
-  
+
   return stars;
 };
 
@@ -50,13 +50,12 @@ const truncateDescription = (desc: string, maxLength = 150) => {
   }
 
   if (textOnly.length <= maxLength) return textOnly;
-  
-  return textOnly.substring(0, maxLength) + '...';
+
+  return textOnly.substring(0, maxLength) + "...";
 };
 
 const stars = generateStars(ratingAverage);
 const truncatedDescription = truncateDescription(description, 170);
-
 ---
 
 <div class="book-list-item">
@@ -76,7 +75,18 @@ const truncatedDescription = truncateDescription(description, 170);
     <div class="rating-count">{ratingAverage.toFixed(1)} ({ratingCount})</div>
   </div>
   <div class="book-actions">
-    {url && <a href={url} target="_blank" rel="noopener noreferrer" class="goodreads-btn">Goodreads</a>}
+    {
+      url && (
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="goodreads-btn"
+        >
+          Goodreads
+        </a>
+      )
+    }
   </div>
 </div>
 
@@ -89,27 +99,27 @@ const truncatedDescription = truncateDescription(description, 170);
     border-bottom: 1px solid var(--border-color);
     gap: 1rem;
   }
-  
+
   .book-list-item:hover {
     background-color: var(--background-light);
   }
-  
+
   .book-title {
     margin: 0;
     font-size: 1rem;
     line-height: 1.3;
   }
-  
+
   .book-title a {
     color: var(--text);
     text-decoration: none;
   }
-  
+
   .book-title a:hover {
     color: var(--accent);
     text-decoration: underline;
   }
-  
+
   .book-meta {
     display: flex;
     flex-wrap: wrap;
@@ -125,28 +135,28 @@ const truncatedDescription = truncateDescription(description, 170);
     margin-bottom: 1rem;
     margin-top: 0.25rem;
   }
-  
+
   .book-rating {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .rating-stars {
     color: #f9a825;
     font-size: 0.9rem;
   }
-  
+
   .rating-count {
     font-size: 0.8rem;
     color: var(--text-light);
   }
-  
+
   .book-actions {
     display: flex;
     justify-content: flex-end;
   }
-  
+
   .badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
@@ -156,15 +166,15 @@ const truncatedDescription = truncateDescription(description, 170);
     color: white;
     margin-right: 0.5rem;
   }
-  
+
   .badge.content-type {
     background-color: var(--accent);
   }
-  
+
   .badge.developer {
     background-color: var(--accent-light);
   }
-  
+
   .goodreads-btn {
     display: inline-block;
     font-size: 0.8rem;
@@ -175,7 +185,7 @@ const truncatedDescription = truncateDescription(description, 170);
     text-decoration: none;
     text-align: center;
   }
-  
+
   .goodreads-btn:hover {
     background-color: var(--accent-dark, #0056b3);
   }

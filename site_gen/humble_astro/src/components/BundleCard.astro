@@ -10,50 +10,88 @@ interface Props {
 
 const { id, name, type, url, startDate, endDate } = Astro.props;
 
-// Format dates
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
-
-const start = formatDate(startDate);
-const end = formatDate(endDate);
-
-// Calculate if bundle is active
-const now = new Date();
-const endDateObj = new Date(endDate);
-const isActive = now < endDateObj;
-
-// Calculate days remaining if active
-let daysRemaining = 0;
-if (isActive) {
-  const diffTime = Math.abs(endDateObj.getTime() - now.getTime());
-  daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-}
 ---
 
-<a href={`/bundles/${id}`}>
-  <div class="card bundle-card">
-    <div class="bundle-status">
-      {
-        isActive ? (
-          <span class="badge active">Active - {daysRemaining} days left</span>
-        ) : (
-          <span class="badge inactive">Ended</span>
-        )
+<script>
+  // Format dates (same function as in frontmatter for consistency)
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  // Function to calculate and update bundle status for all bundle cards
+  function updateBundleCards(): void {
+    // Find all bundle cards
+    const bundleCards = document.querySelectorAll('.bundle-card');
+    
+    bundleCards.forEach(card => {
+      // Get date strings from data attributes
+      const cardElement = card as HTMLElement;
+      const endDateStr = cardElement.dataset.endDate;
+      const startDateStr = cardElement.dataset.startDate;
+      
+      if (!endDateStr || !startDateStr) {
+        console.error('Date attributes not found on bundle card');
+        return;
       }
+      
+      // Parse dates
+      const now = new Date();
+      const endDate = new Date(endDateStr);
+      
+      // Calculate if bundle is active
+      const isActive = now < endDate;
+      
+      // Calculate days remaining if active
+      let daysRemaining = 0;
+      if (isActive) {
+        const diffTime = Math.abs(endDate.getTime() - now.getTime());
+        daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      }
+      
+      // Update status badge
+      const statusBadge = card.querySelector('.bundle-status-badge');
+      if (statusBadge) {
+        if (isActive) {
+          statusBadge.textContent = `Active - ${daysRemaining} days left`;
+          statusBadge.className = 'badge active bundle-status-badge';
+        } else {
+          statusBadge.textContent = 'Ended';
+          statusBadge.className = 'badge inactive bundle-status-badge';
+        }
+      }
+      
+      // Update dates display
+      const bundleDates = card.querySelector('.bundle-dates p');
+      if (bundleDates) {
+        if (isActive) {
+          bundleDates.textContent = `Available until: ${formatDate(endDateStr)}`;
+        } else {
+          bundleDates.textContent = `Available: ${formatDate(startDateStr)} - ${formatDate(endDateStr)}`;
+        }
+      }
+    });
+  }
+  
+  // Run the update function when the page loads
+  document.addEventListener('DOMContentLoaded', updateBundleCards);
+</script>
+
+<a href={`/bundles/${id}`}>
+  <div class="card bundle-card" data-start-date={startDate} data-end-date={endDate}>
+    <div class="bundle-status">
+      <!-- Dates are calculated client-side, so that we can actually update this part of the view without redeploying the site -->
+      <span class="badge bundle-status-badge">Loading...</span>
       <span class="badge type">{type}</span>
     </div>
     <h3 class="bundle-title">{name}</h3>
     <div class="bundle-dates">
-      {isActive ? 
-        <p>Available until: {end}</p> :
-        <p>Available: {start} - {end}</p>
-      }
+      <!-- Dates are calculated client-side -->
+      <p>Loading dates...</p>
     </div>
     <!-- <a href={`/bundles/${id}`} class="btn">View Bundle</a> -->
   </div>

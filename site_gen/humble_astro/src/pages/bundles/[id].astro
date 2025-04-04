@@ -1,11 +1,11 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import BookListItem from '../../components/BookListItem.astro';
-import bundles from '../../../data/bundles.json';
-import bundlesWithBooks from '../../../data/bundles_with_books.json';
+import Layout from "../../layouts/Layout.astro";
+import BookListItem from "../../components/BookListItem.astro";
+import bundles from "../../../data/bundles.json";
+import bundlesWithBooks from "../../../data/bundles_with_books.json";
 
 export function getStaticPaths() {
-  return bundles.map(bundle => ({
+  return bundles.map((bundle) => ({
     params: { id: bundle.id.toString() },
   }));
 }
@@ -14,75 +14,129 @@ const { id } = Astro.params;
 const bundleId = parseInt(id);
 
 // Find the bundle with books
-const bundleWithBooks = bundlesWithBooks.find(bundle => bundle.id === bundleId);
+const bundleWithBooks = bundlesWithBooks.find(
+  (bundle) => bundle.id === bundleId
+);
 const books = bundleWithBooks?.books.sort((l, r) => {
-  return (r.rating_average || 0) - (l.rating_average || 0)
-  || (r.review_count || 0) - (l.review_count || 0);
+  return (
+    (r.rating_average || 0) - (l.rating_average || 0) ||
+    (r.review_count || 0) - (l.review_count || 0)
+  );
 });
 
 if (!bundleWithBooks) {
-  return Astro.redirect('/404');
+  return Astro.redirect("/404");
 }
 
-// Format dates
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-};
-
-const startDate = formatDate(bundleWithBooks.start_date);
-const endDate = formatDate(bundleWithBooks.end_date);
-
-// Calculate if bundle is active
-const now = new Date();
-const endDateObj = new Date(bundleWithBooks.end_date);
-const isActive = now < endDateObj;
-
-// Calculate days remaining if active
-let daysRemaining = 0;
-if (isActive) {
-  const diffTime = Math.abs(endDateObj.getTime() - now.getTime());
-  daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-}
 ---
 
+<script>
+  // Format dates (same function as in frontmatter for consistency)
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  // Function to calculate and update bundle status
+  function updateBundleStatus(): void {
+    // Get date strings from data attributes
+    const bundleContainer = document.getElementById('bundle-container');
+    if (!bundleContainer) {
+      console.error('Bundle container element not found');
+      return;
+    }
+    
+    const endDateStr = bundleContainer.dataset.endDate;
+    const startDateStr = bundleContainer.dataset.startDate;
+    
+    if (!endDateStr || !startDateStr) {
+      console.error('Date attributes not found on bundle container');
+      return;
+    }
+    
+    // Parse dates
+    const now = new Date();
+    const endDate = new Date(endDateStr);
+    
+    // Calculate if bundle is active
+    const isActive = now < endDate;
+    
+    // Calculate days remaining if active
+    let daysRemaining = 0;
+    if (isActive) {
+      const diffTime = Math.abs(endDate.getTime() - now.getTime());
+      daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+    
+    // Update status badge
+    const statusBadge = document.getElementById('status-badge');
+    if (statusBadge) {
+      if (isActive) {
+        statusBadge.textContent = `Active - ${daysRemaining} days remaining`;
+        statusBadge.className = 'badge active';
+      } else {
+        statusBadge.textContent = 'Ended';
+        statusBadge.className = 'badge inactive';
+      }
+    }
+    
+    // Update dates display
+    const bundleDates = document.getElementById('bundle-dates');
+    if (bundleDates) {
+      if (isActive) {
+        bundleDates.textContent = `Available until: ${formatDate(endDateStr)}`;
+      } else {
+        bundleDates.textContent = `Available: ${formatDate(startDateStr)} - ${formatDate(endDateStr)}`;
+      }
+    }
+  }
+  
+  // Run the update function when the page loads
+  document.addEventListener('DOMContentLoaded', updateBundleStatus);
+</script>
+
 <Layout title={bundleWithBooks.name}>
-  <div class="bundle-header">
+  <div 
+    id="bundle-container" 
+    class="bundle-header"
+    data-start-date={bundleWithBooks.start_date}
+    data-end-date={bundleWithBooks.end_date}
+  >
     <div class="bundle-info">
       <h1>{bundleWithBooks.name}</h1>
-      
+
       <div class="bundle-meta">
         <div class="bundle-status">
-          {isActive ? 
-            <span class="badge active">Active - {daysRemaining} days remaining</span> : 
-            <span class="badge inactive">Ended</span>
-          }
+          <!-- Dates are calculated client-side, so that we can actually update this part of the view without redeploying the site -->
+          <span id="status-badge" class="badge">Loading...</span>
           <span class="badge type">{bundleWithBooks.type}</span>
         </div>
-        
+
         <div class="bundle-dates">
-          {isActive ? 
-          <p>Available until: {endDate}</p> :
-          <p>Available: {startDate} - {endDate}</p>
-        }
+          <!-- Dates are calculated client-side -->
+          <p id="bundle-dates">Loading dates...</p>
         </div>
       </div>
-      
-      {bundleWithBooks.url && (
-        <a href={`https://www.humblebundle.com/${bundleWithBooks.url}`} 
-           target="_blank" 
-           rel="noopener noreferrer" 
-           class="btn">
-          View on Humble Bundle
-        </a>
-      )}
+
+      {
+        bundleWithBooks.url && (
+          <a
+            href={`https://www.humblebundle.com/${bundleWithBooks.url}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn"
+          >
+            View on Humble Bundle
+          </a>
+        )
+      }
     </div>
   </div>
-  
+
   <section>
     <h2>Books in this Bundle</h2>
     <div class="book-list">
@@ -91,21 +145,24 @@ if (isActive) {
         <div class="book-rating-header">Rating</div>
         <div class="book-actions-header">Links</div>
       </div>
-      {books && books.map(book => (
-        <BookListItem
-          id={book.id}
-          name={book.name}
-          contentType={book.content_type}
-          url={book.url || ""}
-          description={book.description}
-          ratingAverage={book.rating_average || 0}
-          ratingCount={book.rating_count || 0}
-          developers={book.developers || ""}
-        />
-      ))}
+      {
+        books &&
+          books.map((book) => (
+            <BookListItem
+              id={book.id}
+              name={book.name}
+              contentType={book.content_type}
+              url={book.url || ""}
+              description={book.description}
+              ratingAverage={book.rating_average || 0}
+              ratingCount={book.rating_count || 0}
+              developers={book.developers || ""}
+            />
+          ))
+      }
     </div>
   </section>
-  
+
   <div class="back-link">
     <a href="/" class="btn btn-secondary">← Back to All Bundles</a>
   </div>
@@ -118,50 +175,50 @@ if (isActive) {
     padding: 2rem;
     margin-bottom: 2rem;
   }
-  
+
   .bundle-meta {
     margin: 1rem 0 1.5rem;
   }
-  
+
   .bundle-status {
     display: flex;
     flex-wrap: wrap;
     margin-bottom: 0.5rem;
   }
-  
+
   .bundle-dates {
     color: var(--text-light);
     font-size: 0.9rem;
   }
-  
+
   .badge.active {
     background-color: #4caf50;
   }
-  
+
   .badge.inactive {
     background-color: #9e9e9e;
   }
-  
+
   .badge.type {
     background-color: var(--accent);
   }
-  
+
   section {
     margin-bottom: 3rem;
   }
-  
+
   .back-link {
     margin-top: 2rem;
     margin-bottom: 2rem;
   }
-  
+
   .book-list {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     overflow: hidden;
     background-color: var(--background);
   }
-  
+
   .book-list-header {
     display: grid;
     grid-template-columns: 3fr 1fr 1fr;
@@ -171,12 +228,14 @@ if (isActive) {
     border-bottom: 2px solid var(--border-color);
     gap: 1rem;
   }
-  
-  .book-info-header, .book-rating-header, .book-actions-header {
+
+  .book-info-header,
+  .book-rating-header,
+  .book-actions-header {
     font-size: 0.9rem;
     color: var(--text-light);
   }
-  
+
   .book-actions-header {
     text-align: right;
   }
