@@ -55,7 +55,7 @@ const truncateDescription = (desc: string, maxLength = 150) => {
 };
 
 const stars = generateStars(ratingAverage);
-const truncatedDescription = truncateDescription(description, 170);
+const truncatedDescription = truncateDescription(description, 80);
 ---
 
 <div class="book-list-item">
@@ -142,29 +142,9 @@ const truncatedDescription = truncateDescription(description, 170);
     align-items: flex-start;
   }
 
-  .rating-stars {
-    color: #f9a825;
-    font-size: 0.9rem;
-  }
-
-  .rating-count {
-    font-size: 0.8rem;
-    color: var(--text-light);
-  }
-
   .book-actions {
     display: flex;
     justify-content: flex-end;
-  }
-
-  .badge {
-    display: inline-block;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.7rem;
-    font-weight: 500;
-    color: white;
-    margin-right: 0.5rem;
   }
 
   .badge.content-type {
