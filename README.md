@@ -13,27 +13,35 @@ A tool to analyze Humble Bundle book collections and fetch Goodreads ratings.
 
 ## Project Structure
 
+The basic project is a bun project.
+This project contains all code that generates the site with reviews.
+
+1. The `api` contains the core functionality that will get the books in the bundle and that will fetch the goodreads ratings.
+   These results will be posted to an internal postgres database. You will need to create your own `.env` file for this.
+2. The `db` contains the database-scripts to create the necessary tables. 
+   They also contain the scripts to export the data to json. 
+   The shell script `export_to_astro.sh` contains code that can push this export to the `site_gen` folder.
+3. The `site_gen` contains the astro site that can generate a static site from the exported database-files from step 2. 
+   This site can then be statically deployed on a host.
+
+Lastly, the root folder has a script `run-humble-analyzer.sh` that will run the API code, and that will persist the results to a database.
+
+This means that some of the code in this repo will not be used, like the `frontend`. I just decided to keep them there for posterity's sake.
+Worst case, they (badly) train some LLM.
+
 ```
 humble-book-bun/
-├── src/
+├── api/
 │   ├── core/       # Core functionality
-│   │   └── humble.ts
-│   ├── server/     # Web server
-│   │   └── index.ts
-│   ├── cli/        # Command line interface
-│   │   └── index.ts
-│   ├── utils/      # Utility functions
+│       ├── goodreads.ts # Goodreads search functions
+│       ├── humble.ts    # Humble scraping functions
+│   ├── cli/        # Command line interface 
+│   ├── server/     # Web server - not used when used as a standalone script
 │   ├── types.ts    # TypeScript type definitions
-│   ├── goodreads.ts # Goodreads API functions
 │   └── index.ts    # Main entry point
-├── vue-frontend/   # Vue frontend
-│   ├── src/        # Vue components and logic
-│   │   ├── App.vue
-│   │   └── main.ts
-│   └── index.html  # Frontend entry point
-├── public/         # Static files served by the web server
-│   └── dist/       # Built Vue app (generated)
-└── package.json
+├── db/             # Database folder. Contains table creation scripts, and export functions.
+├── frontend/       # Vue frontend - only used for local testing
+├── site_gen        # Contains the projects that will generate a static site for this export.
 ```
 
 ## Installation
@@ -51,11 +59,7 @@ bun install
 To analyze a Humble Bundle URL via the command line:
 
 ```bash
-# Use the default URL
-bun run cli
-
-# Specify a custom URL
-bun run cli https://www.humblebundle.com/books/your-bundle-url
+.\run-humble-analyzer.sh <book_url>
 ```
 
 ### Web Server with Vue Frontend
@@ -76,33 +80,12 @@ bun run server
 
 Open your browser to http://localhost:3000 to use the web interface.
 
-## Development
+### Astro site generation
 
-This project uses [Bun](https://bun.sh) as its JavaScript runtime and [Vue](https://vuejs.org) for the frontend.
+First, cd into the correct folder: `cd site_gen/humble_astro`
 
-### Backend Development
-
-To run the backend development server with auto-reload:
-
-```bash
-bun run dev
-```
-
-### Frontend Development
-
-To run the Vue development server:
-
-```bash
-bun run frontend:dev
-```
-
-This will start a development server at http://localhost:5173 with hot module replacement.
-
-To check for TypeScript errors in the Vue components:
-
-```bash
-bun run frontend:type-check
-```
+`npm run dev` starts the astro dev server. This commonly opens up on http://localhost:4321.
+`npm run build` generates the static site in a public-folder.
 
 ## License
 
