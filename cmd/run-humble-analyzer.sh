@@ -16,7 +16,7 @@ fi
 
 # Run the script with Bun
 echo "Running Humble Bundle analyzer for URL: $URL"
-bun run api/cli/api-client.ts "$URL" $SAVE_FLAG
+bun run ../api/cli/api-client.ts "$URL" $SAVE_FLAG
 
 # Check if the script ran successfully
 if [ $? -eq 0 ]; then
