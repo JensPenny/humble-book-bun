@@ -26,4 +26,6 @@ fi
 # 3. Export the database to the static site generator
 cd ../db && ./export_to_astro.sh
 # 4. Generate the site again, just for local testing
+cd ../site_gen/humble_astro && npm run build
 # 4. Upload the new static site to the deploy
+cd ../.. && git add . && git commit -m "automated commit by export script"
