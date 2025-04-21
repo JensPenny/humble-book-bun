@@ -1,0 +1,24 @@
+# A dockerfile with only the postgres instance, so that we can use this for multiple services if needed
+services:
+  db:
+    image: postgres:17
+    container_name: humble_data_pg
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=test
+    user: "1122:1122" # user 999 is reserved by systemd coredump - used cat /etc/passwd | grep 999
+    volumes:
+      - /opt/humble_bun_pg:/var/lib/postgresql/data # user 1122 needs to be owner of this bound map
+    ports:
+      - "5432:5432"
+    networks:
+      - humble_bun
+  job: 
+    build:
+      context: ./cmd
+      dockerfile: job.dockerfile
+      networks:
+        - humble_bun
+      env_file:
+        - ./local-job.env
+      # Might need a volume for logs maybe :]
