@@ -8,6 +8,7 @@ services:
       - .env.ovh
     volumes:
       # Mount everything except .git directory. Look later if there is a better way of doing this, or maybe just do an incremental commit on the folder with the updated books..
+      - gitdata:/app/.git
       - ./api:/app/api
       - ./cmd:/app/cmd
       - ./db:/app/db
@@ -38,3 +39,6 @@ services:
 networks:
   humble_net:
     external: true
+
+volumes: 
+  gitdata: # volume to cache git history, so we can check if something goes wrong
