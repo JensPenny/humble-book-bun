@@ -1,6 +1,7 @@
 #!/bin/bash
 # This script allows for an upload to github from a container, based on the data that is provided in an .env file
 cd ..
+echo "Initializing git configuration in container"
 git init 
 git config --global user.name "$GITHUB_USERNAME"
 git config --global user.email "$GITHUB_EMAIL"

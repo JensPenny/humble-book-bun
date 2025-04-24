@@ -1,0 +1,2 @@
+# Exclude Git directory to avoid conflicts with container git initialization
+.git/
