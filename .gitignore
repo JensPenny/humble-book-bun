@@ -106,6 +106,7 @@ web_modules/
 .env.test
 .env.production.local
 .env.local
+.env.ovh
 
 # local dockerfiles
 local-docker-compose.yaml

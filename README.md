@@ -59,7 +59,7 @@ bun install
 To analyze a Humble Bundle URL via the command line:
 
 ```bash
-.\run-humble-analyzer.sh <book_url>
+./run-humble-analyzer.sh <book_url>
 ```
 
 ### Web Server with Vue Frontend
@@ -87,6 +87,54 @@ First, cd into the correct folder: `cd site_gen/humble_astro`
 `npm run dev` starts the astro dev server. This commonly opens up on http://localhost:4321.
 `npm run build` generates the static site in a public-folder.
 
-## License
+## Docker Usage
 
-MIT
+The project can be run in a Docker container, which handles all dependencies and environment setup automatically.
+
+### Prerequisites
+
+- Docker and Docker Compose installed
+- PostgreSQL database running in a container named `humble_data_pg` (or update the `.env.local` file with your database details)
+
+### Setup
+
+1. Make sure your PostgreSQL container is running and accessible
+2. Ensure the Docker network exists by running:
+   ```bash
+   ./ensure-docker-network.sh
+   ```
+3. Configure your environment variables in `.env.local`
+
+### Running the Docker Job
+
+To run the full job in Docker, use the provided script:
+
+```bash
+./run-docker-job.sh
+```
+
+This script will:
+1. Ensure the Docker network exists
+2. Build the Docker image
+3. Run the container with the appropriate environment variables and volume mounts
+4. Execute the full script that:
+   - Detects new bundles
+   - Processes URLs
+   - Exports data to the static site generator
+   - Builds the static site
+   - Commits and pushes changes to GitHub
+
+### Manual Docker Commands
+
+If you prefer to run the Docker commands manually:
+
+```bash
+# Build the Docker image
+docker-compose -f local-docker-compose.yaml build
+
+# Run the Docker container
+docker-compose -f local-docker-compose.yaml up
+```
+
+## License
+TODO
