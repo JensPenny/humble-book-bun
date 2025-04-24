@@ -108,9 +108,6 @@ web_modules/
 .env.local
 .env.ovh
 
-# local dockerfiles
-local-docker-compose.yaml
-
 # parcel-bundler cache (https://parceljs.org/)
 
 .parcel-cache

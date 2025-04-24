@@ -1,0 +1,40 @@
+services:
+  # The actual job. Only provide env files, networks and volumes here.
+  job:
+    build:
+      context: .
+      dockerfile: job.dockerfile
+    env_file:
+      - .env.ovh
+    volumes:
+      # Mount everything except .git directory. Look later if there is a better way of doing this, or maybe just do an incremental commit on the folder with the updated books..
+      - ./api:/app/api
+      - ./cmd:/app/cmd
+      - ./db:/app/db
+      - ./site_gen:/app/site_gen
+      #- ./.env.local:/app/.env.local
+      #- ./.env.example:/app/.env.example
+      - ./.env.ovh:/app/.env.ovh
+      - ./.gitignore:/app/.gitignore
+      - ./bun.lock:/app/bun.lock
+      - ./ensure-docker-network.sh:/app/ensure-docker-network.sh
+      - ./docker-entrypoint.sh:/app/docker-entrypoint.sh
+      - ./package.json:/app/package.json
+      #- ./README.md:/app/README.md
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./vite.config.ts:/app/vite.config.ts
+    networks:
+      - humble_net
+    # Make sure scripts are executable when mounted
+    command: >
+      /bin/sh -c "
+        chmod +x /app/cmd/*.sh &&
+        chmod +x /app/db/export_to_astro.sh &&
+        chmod +x /app/ensure-docker-network.sh &&
+        chmod +x /app/docker-entrypoint.sh &&
+        /app/docker-entrypoint.sh
+      "
+
+networks:
+  humble_net:
+    external: true
