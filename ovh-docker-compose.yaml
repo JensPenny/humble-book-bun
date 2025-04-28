@@ -15,7 +15,8 @@ services:
       - ./site_gen:/app/site_gen
       #- ./.env.local:/app/.env.local
       #- ./.env.example:/app/.env.example
-      - ./.env.ovh:/app/.env.ovh
+      # - ./.env.ovh:/app/.env.ovh
+      - ./.env:/app/.env
       - ./.gitignore:/app/.gitignore
       - ./bun.lock:/app/bun.lock
       - ./ensure-docker-network.sh:/app/ensure-docker-network.sh
