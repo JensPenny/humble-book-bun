@@ -10,7 +10,7 @@ const envPath = path.resolve(__dirname, '../.env.local');
 if (fs.existsSync(envPath)) {
   dotenv.config({ path: envPath });
 } else {
-  console.warn(`Warning: .env.local file not found at ${envPath}`);
+  //console.warn(`Warning: .env.local file not found at ${envPath}`);
   dotenv.config(); // Try to load from default .env file
 }
 

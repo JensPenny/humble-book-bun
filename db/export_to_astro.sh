@@ -3,10 +3,10 @@
 # Script to export database data to Astro site's data folder
 
 # Set variables - now provided from an env file
-# POSTGRES_HOST="localhost"
-# POSTGRES_PORT="5432"
-# POSTGRES_USER="postgres"
-# POSTGRES_DB="humble_bun"
+# PGHOST="localhost"
+# PGPORT="5432"
+# PGUSERNAME="postgres"
+# PGDATABASE="humble_bun"
 ASTRO_DATA_DIR="../site_gen/humble_astro/data"
 
 # Ensure the Astro data directory exists
@@ -16,14 +16,14 @@ echo "Exporting data from PostgreSQL to Astro..."
 
 # Run the SQL scripts to generate JSON files
 echo "Exporting bundles..."
-PGPASSWORD=${PGPASSWORD:-$(read -sp "Enter PostgreSQL password for $POSTGRES_USER: " pwd && echo $pwd)} \
-psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -d $POSTGRES_DB -f export_bundles.sql
+PGPASSWORD=${PGPASSWORD:-$(read -sp "Enter PostgreSQL password for $PGUSERNAME: " pwd && echo $pwd)} \
+psql -h $PGHOST -p $PGPORT -U $PGUSERNAME -d $PGDATABASE -f export_bundles.sql
 
 echo "Exporting books..."
-psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -d $POSTGRES_DB -f export_books.sql
+psql -h $PGHOST -p $PGPORT -U $PGUSERNAME -d $PGDATABASE -f export_books.sql
 
 echo "Exporting bundles with books..."
-psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -d $POSTGRES_DB -f export_bundles_with_books.sql
+psql -h $PGHOST -p $PGPORT -U $PGUSERNAME -d $PGDATABASE -f export_bundles_with_books.sql
 
 # Move the JSON files to the Astro data directory
 echo "Moving JSON files to Astro data directory..."
