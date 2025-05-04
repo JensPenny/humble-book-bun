@@ -28,4 +28,13 @@ cd ../db && ./export_to_astro.sh
 # 4. Generate the site again, just for local testing
 cd ../site_gen/humble_astro && npm run build
 # 4. Upload the new static site to the deploy. Force the commit, if this is running in a container this might behave weirdly otherwise
-cd /app && git add ./site_gen/humble_astro/data && git commit -m "automated commit by export script" && git push
+cd /app
+echo "moved to app folder for git commit" 
+pwd
+ls -a 
+git add ./site_gen/humble_astro/data
+echo "added updated site to git"
+git commit -m "automated commit by export script" 
+echo "committed automatically"
+git push
+echo "pushed automatically"
