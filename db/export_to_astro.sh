@@ -5,7 +5,7 @@
 # Set variables - now provided from an env file
 # PGHOST="localhost"
 # PGPORT="5432"
-# PGUSERNAME="postgres"
+# PGUSER="postgres"
 # PGDATABASE="humble_bun"
 ASTRO_DATA_DIR="../site_gen/humble_astro/data"
 
@@ -16,14 +16,14 @@ echo "Exporting data from PostgreSQL to Astro..."
 
 # Run the SQL scripts to generate JSON files
 echo "Exporting bundles..."
-PGPASSWORD=${PGPASSWORD:-$(read -sp "Enter PostgreSQL password for $PGUSERNAME: " pwd && echo $pwd)} \
-psql -h $PGHOST -p $PGPORT -U $PGUSERNAME -d $PGDATABASE -f export_bundles.sql
+PGPASSWORD=${PGPASSWORD:-$(read -sp "Enter PostgreSQL password for $PGUSER: " pwd && echo $pwd)} \
+psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f export_bundles.sql
 
 echo "Exporting books..."
-psql -h $PGHOST -p $PGPORT -U $PGUSERNAME -d $PGDATABASE -f export_books.sql
+psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f export_books.sql
 
 echo "Exporting bundles with books..."
-psql -h $PGHOST -p $PGPORT -U $PGUSERNAME -d $PGDATABASE -f export_bundles_with_books.sql
+psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f export_bundles_with_books.sql
 
 # Move the JSON files to the Astro data directory
 echo "Moving JSON files to Astro data directory..."

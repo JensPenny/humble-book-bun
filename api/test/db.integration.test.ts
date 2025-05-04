@@ -51,7 +51,7 @@ describe("persistBundle integration", () => {
     // Set up environment variables for the test-container.
     process.env.PGHOST = "";
     process.env.PGPORT = "";
-    process.env.PGUSERNAME = "";
+    process.env.PGUSER = "";
     process.env.PGPASSWORD = "";
     process.env.PGDATABASE = "";
 
