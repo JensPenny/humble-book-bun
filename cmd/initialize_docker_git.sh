@@ -3,12 +3,12 @@
 cd /app
 if [ ! -d .git ]; then 
     echo "Initializing git configuration in container"
-    git config --global init.defaultBranch main # Github uses main as default branches
+    git config init.defaultBranch main # Github uses main as default branches
     git init 
-    git config --global user.name "$GITHUB_USERNAME"
-    git config --global user.email "$GITHUB_EMAIL"
-    git config --global --add safe.directory /app # set the docker app folder as full safe dir, since this is a shared volume from the docker context
-    git config --global push.autoSetupRemote true # Automatically set up the remote tracking branch when pushing
+    git config user.name "$GITHUB_USERNAME"
+    git config user.email "$GITHUB_EMAIL"
+    git config --add safe.directory /app # set the docker app folder as full safe dir, since this is a shared volume from the docker context
+    git config push.autoSetupRemote true # Automatically set up the remote tracking branch when pushing
     git remote add origin "https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@${GITHUB_REPO_URL}"
     git fetch origin
     git checkout -B main origin/main
