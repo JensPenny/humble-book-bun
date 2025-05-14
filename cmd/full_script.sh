@@ -32,7 +32,8 @@ cd /app
 echo "moved to app folder for git commit" 
 pwd
 git pull
-git add .
+git add site_gen
+git add cmd/last_update cmd/urls_to_parse
 echo "added updated site to git"
 git commit -m "automated commit by export script" 
 echo "committed automatically"
