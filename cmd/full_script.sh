@@ -31,8 +31,7 @@ cd ../site_gen/humble_astro && npm run build
 cd /app
 echo "moved to app folder for git commit" 
 pwd
-ls -a 
-git add ./site_gen/humble_astro/data
+git add .
 echo "added updated site to git"
 git commit -m "automated commit by export script" 
 echo "committed automatically"
