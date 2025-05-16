@@ -37,6 +37,7 @@ const { title } = Astro.props;
 					<a href="/" class="logo">Humble Bundle Books</a>
 					<ul class="nav-links">
 						<li><a href="/">Home</a></li>
+						<li><a href="/faq">FAQ</a></li>
 						<li><button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
 							<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sun-icon">
 								<circle cx="12" cy="12" r="5"></circle>
@@ -181,10 +182,13 @@ const { title } = Astro.props;
 	.nav-links {
 		display: flex;
 		list-style: none;
+		align-items: center;
 	}
 	
 	.nav-links li {
 		margin-left: 1.5rem;
+		display: flex; 
+		align-items: center; 
 	}
 	
 	.nav-links a {
@@ -192,6 +196,9 @@ const { title } = Astro.props;
 		text-decoration: none;
 		font-weight: 500;		
 		transition: color 0.2s;
+		display: flex; /* Make links flex containers */
+		align-items: center; /* Center content vertically */
+		height: 100%; /* Take full height */
 	}
 	
 	.nav-links a:hover {
@@ -350,6 +357,8 @@ const { title } = Astro.props;
 		justify-content: center;
 		padding: 0.5rem;
 		border-radius: 50%;
+		height: 100%;
+		margin: 0;
 	}
 	
 	.theme-toggle:hover {
