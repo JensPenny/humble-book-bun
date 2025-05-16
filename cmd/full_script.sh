@@ -33,6 +33,7 @@ echo "moved to app folder for git commit"
 pwd
 git pull
 git add site_gen
+git add site_gen/humble_astro/data/
 #git add cmd/last_update cmd/urls_to_parse
 echo "added updated site to git"
 git commit -m "automated commit by export script" 

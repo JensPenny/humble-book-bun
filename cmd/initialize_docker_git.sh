@@ -8,6 +8,10 @@ if [ ! -d .git ]; then
     git config user.name "$GITHUB_USERNAME"
     git config user.email "$GITHUB_EMAIL"
     git config --add safe.directory /app # set the docker app folder as full safe dir, since this is a shared volume from the docker context
+    git config --add safe.directory /app/cmd
+    git config --add safe.directory /app/site_gen
+    git config --add safe.directory /app/site_gen/humble_astro
+    git config --add safe.directory /app/site_gen/humble_astro/data
     git config push.autoSetupRemote true # Automatically set up the remote tracking branch when pushing
     git remote add origin "https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@${GITHUB_REPO_URL}"
     git fetch origin
