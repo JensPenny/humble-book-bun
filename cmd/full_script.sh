@@ -32,10 +32,12 @@ cd /app
 echo "moved to app folder for git commit" 
 pwd
 git pull
-git add site_gen
-git add site_gen/humble_astro/data/
-#git add cmd/last_update cmd/urls_to_parse
-echo "added updated site to git"
+# Add site_gen directory and explicitly force add the data JSON files
+git add site_gen/
+git add -f site_gen/humble_astro/data/*.json
+# Add the cmd files that need to be tracked
+git add cmd/last_update cmd/urls_to_parse
+echo "added updated site and specific files to git"
 git commit -m "automated commit by export script" 
 echo "committed automatically"
 git push
