@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # This script runs the humble analyzer job in a Docker container
+# and then commits the changes to Git on the host
 
 # Ensure the Docker network exists
 echo "Ensuring Docker network exists..."
@@ -11,4 +12,10 @@ echo "Building and running the Docker container..."
 docker compose -f ovh-docker-compose.yaml build
 docker compose -f ovh-docker-compose.yaml up
 
-echo "Job completed!"
+echo "Docker job completed!"
+
+# Run the Git operations on the host
+echo "Now running Git operations on the host..."
+./commit-changes.sh
+
+echo "All operations completed successfully!"
