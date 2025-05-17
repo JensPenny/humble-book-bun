@@ -40,7 +40,7 @@ async function main() {
           ratingText += ')';
         }
       }
-      console.log(`• ${book.human_name} by ${book.developers.map(dev => dev.developer_name).join(", ")} - Goodreads: ${ratingText}`);
+      //console.log(`• ${book.human_name} by ${book.developers.map(dev => dev.developer_name).join(", ")} - Goodreads: ${ratingText}`);
     });
     
     // Save to database if --save flag is provided

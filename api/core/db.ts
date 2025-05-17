@@ -68,7 +68,7 @@ export async function persistBundle(
     RETURNING bundle_id
     `;
 
-    console.log("successfully inserted bundle to DB: ", inserted);
+    //console.log("successfully inserted bundle to DB: ", inserted);
 
     const bundleId = inserted[0].bundle_id as number;
 
@@ -126,11 +126,11 @@ export async function persistBundleBooks(
   try {
     // Use a transaction for all book inserts
     const bookResultsArray = await sql.begin(async tx => {
-      console.log("Transaction started");
+      //console.log("Transaction started");
       const results = [];
       
       for (const row of rowObjectsToInsert) {
-        console.log(`Inserting book: ${row.name}`);
+        //console.log(`Inserting book: ${row.name}`);
         try {
           const result = await tx`
             INSERT INTO book (
@@ -151,7 +151,7 @@ export async function persistBundleBooks(
             )
             RETURNING book_id, name
           `;
-          console.log(`Book insert result:`, result);
+          //console.log(`Book insert result:`, result);
           results.push(result);
         } catch (err) {
           console.error(`Error inserting book ${row.name}:`, err);
@@ -159,7 +159,7 @@ export async function persistBundleBooks(
         }
       }
       
-      console.log("All book inserts completed successfully");
+      //console.log("All book inserts completed successfully");
       return results;
     });
     
@@ -168,7 +168,7 @@ export async function persistBundleBooks(
     
     // Flatten the results
     bookResults = bookResultsArray.flat();
-    console.log("Flattened book results:", bookResults);
+    //console.log("Flattened book results:", bookResults);
   } catch (err) {
     console.error("Transaction failed:", err);
     throw err;
