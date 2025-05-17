@@ -11,7 +11,7 @@ if (runServer) {
 } else {
   // Run the CLI
   console.log('Running CLI mode...');
-  import('./cli/index.ts');
+  import('./cli/api-client.ts');
 }
 
 // Usage:

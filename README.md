@@ -8,7 +8,6 @@ A tool to analyze Humble Bundle book collections and fetch Goodreads ratings.
 - Extract book information including titles and authors
 - Retrieve Goodreads ratings for each book
 - Display results in a formatted list
-- Vue-powered web interface for submitting URLs and viewing results
 - Command-line interface for quick analysis
 
 ## Project Structure
@@ -24,10 +23,7 @@ This project contains all code that generates the site with reviews.
 3. The `site_gen` contains the astro site that can generate a static site from the exported database-files from step 2. 
    This site can then be statically deployed on a host.
 
-Lastly, the root folder has a script `run-humble-analyzer.sh` that will run the API code, and that will persist the results to a database.
-
-This means that some of the code in this repo will not be used, like the `frontend`. I just decided to keep them there for posterity's sake.
-Worst case, they (badly) train some LLM.
+The `cmd` folder contains various scripts for running the application, including `run-humble-analyzer.sh` that will run the API code and persist the results to a database.
 
 ```
 humble-book-bun/
@@ -39,8 +35,8 @@ humble-book-bun/
 │   ├── server/     # Web server - not used when used as a standalone script
 │   ├── types.ts    # TypeScript type definitions
 │   └── index.ts    # Main entry point
+├── cmd/            # Command scripts for running the application
 ├── db/             # Database folder. Contains table creation scripts, and export functions.
-├── frontend/       # Vue frontend - only used for local testing
 ├── site_gen        # Contains the projects that will generate a static site for this export.
 ```
 
@@ -59,26 +55,17 @@ bun install
 To analyze a Humble Bundle URL via the command line:
 
 ```bash
-./run-humble-analyzer.sh <book_url>
+./cmd/run-humble-analyzer.sh <book_url>
 ```
 
-### Web Server with Vue Frontend
+### Web Server
 
-First, build the Vue frontend:
-
-```bash
-# Build the Vue frontend
-bun run frontend:build
-```
-
-Then start the server:
+To start the web server:
 
 ```bash
 # Start the server
 bun run server
 ```
-
-Open your browser to http://localhost:3000 to use the web interface.
 
 ### Astro site generation
 
@@ -110,7 +97,9 @@ The project can be run in a Docker container, which handles all dependencies and
 To run the full job in Docker, use the provided script:
 
 ```bash
-./run-docker-job.sh
+./run-docker-job-local.sh  # For local deployment
+# or
+./run-docker-job-ovh.sh    # For OVH deployment
 ```
 
 This script will:

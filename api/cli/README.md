@@ -1,27 +1,12 @@
 # Humble Bundle CLI Tools
 
-This directory contains CLI tools for analyzing Humble Bundle book bundles and saving the data to a Cloudflare D1 database.
+This directory contains CLI tools for analyzing Humble Bundle book bundles, fetching Goodreads ratings, and saving the data to a PostgreSQL database.
 
 ## Available Scripts
 
-### Standard CLI (Uses D1 Bindings)
+### API Client CLI
 
-The standard CLI script (`index.ts`) is designed to be run in a Cloudflare Workers environment with D1 bindings.
-
-```bash
-# Run without saving to database
-bun run cli
-
-# Run with a specific URL
-bun run cli https://www.humblebundle.com/books/your-bundle-url
-
-# Run and save to database
-bun run cli https://www.humblebundle.com/books/your-bundle-url --save
-```
-
-### API Client CLI (Uses Cloudflare API)
-
-The API client script (`api-client.ts`) is designed to be run on a self-hosted server and uses the Cloudflare API to access the D1 database.
+The API client script (`api-client.ts`) is designed to be run on a self-hosted server and connects to a PostgreSQL database.
 
 ```bash
 # Run without saving to database
@@ -40,27 +25,36 @@ To run the API client on a self-hosted server:
 
 1. Clone the repository
 2. Install dependencies: `bun install`
-3. Create a `.env.local` file in the `api` directory with the following variables:
+3. Create a `.env` or `.env.local` file with the following PostgreSQL connection variables:
    ```
-   todo fix these env vars
+   PGHOST=postgres
+   PGPORT=5432
+   PGDATABASE=humble_bundles
+   PGUSER=youruser
+   PGPASSWORD=yourpassword
    ```
-4. Make the shell script executable: `chmod +x run-humble-analyzer.sh`
-5. Run the script: `./run-humble-analyzer.sh`
+4. Make the shell script executable: `chmod +x cmd/run-humble-analyzer.sh`
+5. Run the script: `./cmd/run-humble-analyzer.sh`
 
-## Environment Variables
+## Docker Deployment
 
-The API client requires the following environment variables:
+The application can also be run in a Docker container:
 
-todo fix these env variables
+1. Configure environment variables in `.env`
+2. Run `./run-docker-job-local.sh` for local deployment or `./run-docker-job-ovh.sh` for OVH deployment
 
 ## How It Works
 
-The API client:
+The application workflow:
 
-1. Loads environment variables from the `.env.local` file
-2. Fetches data from the specified Humble Bundle URL
-3. Gets Goodreads ratings for each book
-4. Optionally saves the data to a postgres database
+1. Detects new Humble Bundle book bundles
+2. For each bundle:
+   - Fetches data from the Humble Bundle URL
+   - Gets Goodreads ratings for each book
+   - Saves the data to a PostgreSQL database
+3. Exports the database data to JSON files for the Astro static site generator
+4. Builds the static site
+5. Commits and pushes the changes to GitHub
 
 ## Shortcomings
 
