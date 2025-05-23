@@ -43,6 +43,10 @@ const generateStars = (rating: number) => {
 
 // Truncate description
 const truncateDescription = (desc: string, maxLength = 150) => {
+  if (!desc) {
+    return "no parseable description found";
+  }
+  
   // Remove HTML tags
   let textOnly = desc.replace(/<\/?[^>]+(>|$)/g, " | ").trim();
   if (textOnly.at(0) == "|") {
