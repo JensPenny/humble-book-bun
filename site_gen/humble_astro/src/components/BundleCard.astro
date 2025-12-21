@@ -8,9 +8,11 @@ interface Props {
   url: string;
   startDate: string;
   endDate: string;
+  totalBooks?: number;
+  otherBundles?: Array<{ bundle_id: number; name: string; start_bundle: number; end_bundle: number; shared_books_count: number }>;
 }
 
-const { id, name, type, url, startDate, endDate } = Astro.props;
+const { id, name, type, url, startDate, endDate, totalBooks, otherBundles } = Astro.props;
 
 ---
 
@@ -96,9 +98,14 @@ const { id, name, type, url, startDate, endDate } = Astro.props;
       <p>Loading dates...</p>
     </div>
     <!-- <a href={`/bundles/${id}`} class="btn">View Bundle</a> -->
-     <div>
-    <BundleListDropdown title='X of Y books are in other bundles:' bundles={[]} />
-     </div>
+    {otherBundles !== undefined && otherBundles.length > 0 && (
+      <div>
+        <BundleListDropdown 
+          title={`Books in this bundle are repeated in ${otherBundles.length} other bundles`} 
+          bundles={otherBundles.map((b) => ({ id: b.bundle_id, name: b.name, start_bundle: b.start_bundle, end_bundle: b.end_bundle, shared_books_count: b.shared_books_count }))} 
+        />
+      </div>
+    )}
   </div>
 </a>
 

@@ -97,14 +97,14 @@ const truncatedDescription = truncateDescription(description, 80);
     }
   </div>
 
-  {otherBundles.length > 0 && 
+  {otherBundles.length > 0 && (
   <div>
     <BundleListDropdown
-      title="Bundles containing this book:"
-      bundles={otherBundles.map((b) => ({ id: b.bundle_id, name: b.name }))} 
+      title={`Bundles containing this book: ${otherBundles.length}`}
+      bundles={otherBundles.map((b) => ({ id: b.bundle_id, name: b.name, start_bundle: b.start_bundle, end_bundle: b.end_bundle }))} 
     />
   </div>
-  }
+  )}
 </div>
 
 <style>

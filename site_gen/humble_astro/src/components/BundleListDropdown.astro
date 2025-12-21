@@ -5,18 +5,22 @@ interface Props {
     bundles: any; // Todo maybe make a bundle object instead of generating it? 
 }
 
-const { title = "Previous bundles:", bundles } = Astro.props;
+const { title = "Other bundles: ", bundles } = Astro.props;
 ---
 
 <div class="dropdown">
     <button class="dropdown-badge">
-        {title} {bundles.length}
+        {title}
     </button>
     <div class="dropdown-content">
         <ul>
             {bundles.map((bundle: any) => (
                 <li>
-                    <a href={`/bundles/${bundle.id}`}>{bundle.name}</a>
+                    <a href={`/bundles/${bundle.id}`}>
+                        {bundle.name}
+                        {bundle.shared_books_count !== undefined && ` (${bundle.shared_books_count} shared books)`}
+                        {bundle.end_bundle && ` - ended: ${bundle.end_bundle}`}
+                    </a>
                 </li>
             ))}
         </ul>
