@@ -1,4 +1,6 @@
 ---
+import BundleListDropdown from './BundleListDropdown.astro';
+
 interface Props {
   id: number;
   name: string;
@@ -94,6 +96,9 @@ const { id, name, type, url, startDate, endDate } = Astro.props;
       <p>Loading dates...</p>
     </div>
     <!-- <a href={`/bundles/${id}`} class="btn">View Bundle</a> -->
+     <div>
+    <BundleListDropdown title='X of Y books are in other bundles:' bundles={[]} />
+     </div>
   </div>
 </a>
 

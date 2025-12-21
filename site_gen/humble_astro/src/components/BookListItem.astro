@@ -1,4 +1,6 @@
 ---
+import BundleListDropdown from './BundleListDropdown.astro';
+
 interface Props {
   id: number;
   name: string;
@@ -8,6 +10,7 @@ interface Props {
   ratingAverage: number;
   ratingCount: number;
   developers: string;
+  otherBundles?: Array<{ bundle_id: number; name: string; start_bundle: string, end_bundle: string }>;
 }
 
 const {
@@ -19,6 +22,7 @@ const {
   ratingAverage,
   ratingCount,
   developers,
+  otherBundles = [],
 } = Astro.props;
 
 // Generate star rating
@@ -92,6 +96,15 @@ const truncatedDescription = truncateDescription(description, 80);
       )
     }
   </div>
+
+  {otherBundles.length > 0 && 
+  <div>
+    <BundleListDropdown
+      title="Bundles containing this book:"
+      bundles={otherBundles.map((b) => ({ id: b.bundle_id, name: b.name }))} 
+    />
+  </div>
+  }
 </div>
 
 <style>

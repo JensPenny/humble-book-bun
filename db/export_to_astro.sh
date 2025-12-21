@@ -22,8 +22,10 @@ psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f export_bundles.sql
 echo "Exporting books..."
 psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f export_books.sql
 
-echo "Exporting bundles with books..."
-psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f export_bundles_with_books.sql
+# Not required for now - static site building will use the books.json and bundles.json separately
+# The build cost is, at this moment, acceptable.
+#echo "Exporting bundles with books..."
+#psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f export_bundles_with_books.sql
 
 # Move the JSON files to the Astro data directory
 echo "Moving JSON files to Astro data directory..."
@@ -33,7 +35,9 @@ cp "$ASTRO_DATA_DIR/bundles.json" "$ASTRO_DATA_DIR/bundles.json.bak"
 mv  bundles.json "$ASTRO_DATA_DIR/"
 cp "$ASTRO_DATA_DIR/books.json" "$ASTRO_DATA_DIR/books.json.bak" 
 mv books.json "$ASTRO_DATA_DIR/"
-cp "$ASTRO_DATA_DIR/bundles_with_books.json" "$ASTRO_DATA_DIR/bundles_with_books.json.bak" 
-mv bundles_with_books.json "$ASTRO_DATA_DIR/"
+
+# Not required for now - static site building will use the books.json and bundles.json separately
+#cp "$ASTRO_DATA_DIR/bundles_with_books.json" "$ASTRO_DATA_DIR/bundles_with_books.json.bak" 
+#mv bundles_with_books.json "$ASTRO_DATA_DIR/"
 
 echo "Export complete! Data files are now in $ASTRO_DATA_DIR"

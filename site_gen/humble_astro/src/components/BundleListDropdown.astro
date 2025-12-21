@@ -1,0 +1,75 @@
+---
+// A dropdown component that can show a list of bundles after click
+interface Props {
+    title: string;
+    bundles: any; // Todo maybe make a bundle object instead of generating it? 
+}
+
+const { title = "Previous bundles:", bundles } = Astro.props;
+---
+
+<div class="dropdown">
+    <button class="dropdown-badge">
+        {title} {bundles.length}
+    </button>
+    <div class="dropdown-content">
+        <ul>
+            {bundles.map((bundle: any) => (
+                <li>
+                    <a href={`/bundles/${bundle.id}`}>{bundle.name}</a>
+                </li>
+            ))}
+        </ul>
+    </div>
+</div>
+
+<!-- Todo fix styling here --> 
+<style>
+    .dropdown { 
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-badge {
+        background: #4CAF50;
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none; 
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute; 
+        background: white;
+        min-width: 200px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        z-index: 1;
+        border-radius: 4px; 
+        padding: 0.5rem 0;
+    }
+
+    .dropdown-content ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .dropdown-content li {
+        padding: 0.5rem 1rem;
+    }
+
+    .dropdown-content a {
+        color: #333;
+        text-decoration: none;
+    }
+
+    .dropdown-content a:hover {
+        background: #f1f1f1;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+</style>
