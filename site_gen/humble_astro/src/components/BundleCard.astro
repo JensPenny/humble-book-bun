@@ -85,35 +85,49 @@ const { id, name, type, url, startDate, endDate, totalBooks, otherBundles } = As
   document.addEventListener('DOMContentLoaded', updateBundleCards);
 </script>
 
-<a href={`/bundles/${id}`}>
-  <div class="card bundle-card" data-start-date={startDate} data-end-date={endDate}>
+<!-- <a href={`/bundles/${id}`}> -->
+  <div class="card bundle-card" 
+    data-start-date={startDate} 
+    data-end-date={endDate}
+    role="link"
+    tabindex="0"
+    onclick={`window.location.href='/bundles/${id}'`}    
+    onkeydown={`if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      window.location.href='/bundles/${id}';
+    }`
+    }
+    >
     <div class="bundle-status">
       <!-- Dates are calculated client-side, so that we can actually update this part of the view without redeploying the site -->
       <span class="badge bundle-status-badge">Loading...</span>
       <span class="badge type">{type}</span>
+      {otherBundles !== undefined && otherBundles.length > 0 && (
+        <BundleListDropdown 
+          title={`duplicates in ${otherBundles.length} bundle(s)`} 
+          bundles={otherBundles.map((b) => ({ id: b.bundle_id, name: b.name, start_bundle: b.start_bundle, end_bundle: b.end_bundle, shared_books_count: b.shared_books_count }))} 
+        />
+      )}
     </div>
     <h3 class="bundle-title">{name}</h3>
     <div class="bundle-dates">
       <!-- Dates are calculated client-side -->
       <p>Loading dates...</p>
     </div>
-    <!-- <a href={`/bundles/${id}`} class="btn">View Bundle</a> -->
-    {otherBundles !== undefined && otherBundles.length > 0 && (
-      <div>
-        <BundleListDropdown 
-          title={`Books in this bundle are repeated in ${otherBundles.length} other bundles`} 
-          bundles={otherBundles.map((b) => ({ id: b.bundle_id, name: b.name, start_bundle: b.start_bundle, end_bundle: b.end_bundle, shared_books_count: b.shared_books_count }))} 
-        />
-      </div>
-    )}
   </div>
-</a>
+<!-- </a> -->
 
 <style>
   .bundle-card {
     height: 100%;
     display: flex;
     flex-direction: column;
+    cursor: pointer;
+  }
+
+  .bundle-card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 
   .bundle-title {

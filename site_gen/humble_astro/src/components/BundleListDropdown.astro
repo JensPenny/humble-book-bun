@@ -19,14 +19,14 @@ const formatDate = (dateString: string) => {
 
 ---
 
-<div class="dropdown">
-    <button class="dropdown-badge">
+<div class="dropdown" onclick="event.stopPropagation();">
+    <button class="dropdown-badge" onclick="event.stopPropagation();">
         {title}
         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dropdown-icon">
             <polyline points="6 9 12 15 18 9"></polyline>
         </svg>
     </button>
-    <div class="dropdown-content">
+    <div class="dropdown-content" onclick="event.stopPropagation();">
         <ul>
             {bundles.map((bundle: any) => (
                 <li>
@@ -57,7 +57,7 @@ const formatDate = (dateString: string) => {
         display: inline-flex;
         align-items: center;
         gap: 0.25rem;
-        background-color: var(--accent-light);
+        background-color: var(--accent);
         color: white;
         padding: 0.25rem 0.5rem;
         border: none; 
@@ -66,6 +66,7 @@ const formatDate = (dateString: string) => {
         font-weight: 500;
         cursor: pointer;
         transition: background-color 0.2s, transform 0.1s;
+        pointer-events: auto;
     }
 
     .dropdown-badge:hover {
@@ -96,6 +97,7 @@ const formatDate = (dateString: string) => {
         border: 1px solid var(--border);
         padding: 0;
         left: 0;
+        pointer-events: auto;
     }
 
     .dropdown-content ul {
