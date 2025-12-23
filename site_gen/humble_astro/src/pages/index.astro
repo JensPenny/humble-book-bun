@@ -3,150 +3,16 @@ import Layout from '../layouts/Layout.astro';
 import BundleCard from '../components/BundleCard.astro';
 import bundles from '../../data/bundles.json';
 
-// Serialize the bundle data to pass to client-side JavaScript
-const bundlesJson = JSON.stringify(bundles);
+// Sort bundles by end date (newest first)
+const sortedBundles = [...bundles].sort((a, b) => {
+	return new Date(b.end_date).getTime() - new Date(a.end_date).getTime();
+});
+
+// Separate active and ended bundles (at build time)
+const now = new Date();
+const activeBundles = sortedBundles.filter(bundle => new Date(bundle.end_date) > now);
+const endedBundles = sortedBundles.filter(bundle => new Date(bundle.end_date) <= now);
 ---
-
-<script define:vars={{ bundlesJson }}>
-	// Parse the bundle data passed from the server
-	const bundles = JSON.parse(bundlesJson);
-
-	// Format dates
-	const formatDate = (dateString) => {
-		const date = new Date(dateString);
-		return date.toLocaleDateString("en-US", {
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-		});
-	};
-
-	// Function to calculate and update bundle status for all bundle cards
-	function updateBundleCards() {
-		// Find all bundle cards
-		const bundleCards = document.querySelectorAll('.bundle-card');
-		
-		bundleCards.forEach(card => {
-			// Get date strings from data attributes
-			const cardElement = card;
-			const endDateStr = cardElement.dataset.endDate;
-			const startDateStr = cardElement.dataset.startDate;
-			
-			if (!endDateStr || !startDateStr) {
-				console.error('Date attributes not found on bundle card');
-				return;
-			}
-			
-			// Parse dates
-			const now = new Date();
-			const endDate = new Date(endDateStr);
-			
-			// Calculate if bundle is active
-			const isActive = now < endDate;
-			
-			// Calculate days remaining if active
-			let daysRemaining = 0;
-			if (isActive) {
-				const diffTime = Math.abs(endDate.getTime() - now.getTime());
-				daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-			}
-			
-			// Update status badge
-			const statusBadge = card.querySelector('.bundle-status-badge');
-			if (statusBadge) {
-				if (isActive) {
-					statusBadge.textContent = `Active - ${daysRemaining} days left`;
-					statusBadge.className = 'badge active bundle-status-badge';
-				} else {
-					statusBadge.textContent = 'Ended';
-					statusBadge.className = 'badge inactive bundle-status-badge';
-				}
-			}
-			
-			// Update dates display
-			const bundleDates = card.querySelector('.bundle-dates p');
-			if (bundleDates) {
-				if (isActive) {
-					bundleDates.textContent = `Available until: ${formatDate(endDateStr)}`;
-				} else {
-					bundleDates.textContent = `Available: ${formatDate(startDateStr)} - ${formatDate(endDateStr)}`;
-				}
-			}
-		});
-	}
-
-	function updateBundleList() {
-		try {
-			// Sort bundles by end date (newest first)
-			const sortedBundles = [...bundles].sort((a, b) => {
-				return new Date(b.end_date).getTime() - new Date(a.end_date).getTime();
-			});
-			
-			// Separate active and ended bundles
-			const now = new Date();
-			const activeBundles = sortedBundles.filter(bundle => new Date(bundle.end_date) > now);
-			const endedBundles = sortedBundles.filter(bundle => new Date(bundle.end_date) <= now);
-			
-			// Get container elements
-			const activeBundlesContainer = document.getElementById('active-bundles-container');
-			const pastBundlesContainer = document.getElementById('past-bundles-container');
-			const noActiveBundlesMessage = document.getElementById('no-active-bundles');
-			
-			if (!activeBundlesContainer || !pastBundlesContainer || !noActiveBundlesMessage) {
-				console.error('Container elements not found');
-				return;
-			}
-			
-			// Clear containers
-			activeBundlesContainer.innerHTML = '';
-			pastBundlesContainer.innerHTML = '';
-			
-			// Show/hide no active bundles message
-			if (activeBundles.length === 0) {
-				noActiveBundlesMessage.style.display = 'block';
-			} else {
-				noActiveBundlesMessage.style.display = 'none';
-				
-				// Create and append active bundle cards
-				activeBundles.forEach(bundle => {
-					const bundleCardHTML = createBundleCardHTML(bundle);
-					activeBundlesContainer.innerHTML += bundleCardHTML;
-				});
-			}
-			
-			// Create and append past bundle cards
-			endedBundles.forEach(bundle => {
-				const bundleCardHTML = createBundleCardHTML(bundle);
-				pastBundlesContainer.innerHTML += bundleCardHTML;
-			});
-			
-			// Update bundle cards status
-			updateBundleCards();
-		} catch (error) {
-			console.error('Error updating bundle list:', error);
-		}
-	}
-	
-	function createBundleCardHTML(bundle) {
-		return `
-			<a href="/bundles/${bundle.id}">
-				<div class="card bundle-card" data-start-date="${bundle.start_date}" data-end-date="${bundle.end_date}">
-					<div class="bundle-status">
-						<span class="badge bundle-status-badge">Loading...</span>
-						<span class="badge type">${bundle.type}</span>
-					</div>
-					<h3 class="bundle-title">${bundle.name}</h3>
-					<div class="bundle-dates">
-						<p>Loading dates...</p>
-					</div>
-				</div>
-			</a>
-		`;
-	}
-	
-	// Run the update function when the page loads
-	document.addEventListener('DOMContentLoaded', updateBundleList);
-</script>
 
 <Layout title="Humble Bundle Books Collection">
 	<section class="hero">
@@ -156,18 +22,41 @@ const bundlesJson = JSON.stringify(bundles);
 
 	<section>
 		<h2>Active Bundles</h2>
-		<p id="no-active-bundles" style="display: none;">No active bundles at the moment.</p>
-		<div id="active-bundles-container" class="card-list">
-			<!-- Will be populated by JavaScript -->
-			<div class="loading-indicator">Loading active bundles...</div>
-		</div>
+		{activeBundles.length === 0 ? (
+			<p>No active bundles at the moment.</p>
+		) : (
+			<div class="card-list">
+				{activeBundles.map(bundle => (
+					<BundleCard
+						id={bundle.id}
+						name={bundle.name}
+						type={bundle.type}
+						url={bundle.url}
+						startDate={bundle.start_date}
+						endDate={bundle.end_date}
+						totalBooks={bundle.total_books}
+						otherBundles={bundle.related_bundles || []}
+					/>
+				))}
+			</div>
+		)}
 	</section>
 
 	<section>
 		<h2>Past Bundles</h2>
-		<div id="past-bundles-container" class="card-list">
-			<!-- Will be populated by JavaScript -->
-			<div class="loading-indicator">Loading past bundles...</div>
+		<div class="card-list">
+			{endedBundles.map(bundle => (
+				<BundleCard
+					id={bundle.id}
+					name={bundle.name}
+					type={bundle.type}
+					url={bundle.url}
+					startDate={bundle.start_date}
+					endDate={bundle.end_date}
+					totalBooks={bundle.total_books}
+					otherBundles={bundle.related_bundles || []}
+				/>
+			))}
 		</div>
 	</section>
 </Layout>
@@ -183,11 +72,5 @@ const bundlesJson = JSON.stringify(bundles);
 
 	section {
 		margin-bottom: 3rem;
-	}
-	
-	.loading-indicator {
-		padding: 1rem;
-		text-align: center;
-		color: var(--text-light);
 	}
 </style>

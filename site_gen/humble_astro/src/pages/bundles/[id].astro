@@ -2,7 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import BookListItem from "../../components/BookListItem.astro";
 import bundles from "../../../data/bundles.json";
-import bundlesWithBooks from "../../../data/bundles_with_books.json";
+import jsonBooks from "../../../data/books.json";
 
 export function getStaticPaths() {
   return bundles.map((bundle) => ({
@@ -13,18 +13,12 @@ export function getStaticPaths() {
 const { id } = Astro.params;
 const bundleId = parseInt(id);
 
-// Find the bundle with books
-const bundleWithBooks = bundlesWithBooks.find(
-  (bundle) => bundle.id === bundleId
-);
-const books = bundleWithBooks?.books.sort((l, r) => {
-  return (
-    (r.rating_average || 0) - (l.rating_average || 0) ||
-    (r.review_count || 0) - (l.review_count || 0)
-  );
-});
+const bundle = bundles.find((b) => b.id === bundleId);
+const books = jsonBooks
+                .filter((book) => book.bundle_id === bundleId)
+                .sort((l, r) => (r.rating_average || 0) - (l.rating_average || 0) || (r.review_count || 0) - (l.review_count || 0));
 
-if (!bundleWithBooks) {
+if (!bundle || books.length === 0) {
   return Astro.redirect("/404");
 }
 
@@ -99,21 +93,21 @@ if (!bundleWithBooks) {
   document.addEventListener('DOMContentLoaded', updateBundleStatus);
 </script>
 
-<Layout title={bundleWithBooks.name}>
+<Layout title={bundle.name}>
   <div 
     id="bundle-container" 
     class="bundle-header"
-    data-start-date={bundleWithBooks.start_date}
-    data-end-date={bundleWithBooks.end_date}
+    data-start-date={bundle.start_date}
+    data-end-date={bundle.end_date}
   >
     <div class="bundle-info">
-      <h1>{bundleWithBooks.name}</h1>
+      <h1>{bundle.name}</h1>
 
       <div class="bundle-meta">
         <div class="bundle-status">
           <!-- Dates are calculated client-side, so that we can actually update this part of the view without redeploying the site -->
           <span id="status-badge" class="badge">Loading...</span>
-          <span class="badge type">{bundleWithBooks.type}</span>
+          <span class="badge type">{bundle.type}</span>
         </div>
 
         <div class="bundle-dates">
@@ -123,9 +117,9 @@ if (!bundleWithBooks) {
       </div>
 
       {
-        bundleWithBooks.url && (
+        bundle.url && (
           <a
-            href={`https://www.humblebundle.com/${bundleWithBooks.url}`}
+            href={`https://www.humblebundle.com/${bundle.url}`}
             target="_blank"
             rel="noopener noreferrer"
             class="btn"
@@ -153,10 +147,11 @@ if (!bundleWithBooks) {
               name={book.name}
               contentType={book.content_type}
               url={book.url || ""}
-              description={book.description}
+              description={book.description || ""}
               ratingAverage={book.rating_average || 0}
               ratingCount={book.rating_count || 0}
               developers={book.developers || ""}
+              otherBundles={book.other_bundles || []}
             />
           ))
       }
