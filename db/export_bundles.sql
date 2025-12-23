@@ -24,8 +24,8 @@ FROM (
                 json_build_object(
                     'bundle_id', bu2.bundle_id,
                     'name', bu2.name,
-                    'start_bundle', bu2.start_bundle,
-                    'end_bundle', bu2.end_bundle,
+                    'start_bundle', to_timestamp(bu2.start_bundle),
+                    'end_bundle', to_timestamp(bu2.end_bundle),
                     'shared_books_count', shared_count.count
                 )
             )
