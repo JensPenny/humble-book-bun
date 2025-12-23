@@ -6,20 +6,40 @@ interface Props {
 }
 
 const { title = "Other bundles: ", bundles } = Astro.props;
+
+// Format date
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
 ---
 
 <div class="dropdown">
     <button class="dropdown-badge">
         {title}
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dropdown-icon">
+            <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
     </button>
     <div class="dropdown-content">
         <ul>
             {bundles.map((bundle: any) => (
                 <li>
                     <a href={`/bundles/${bundle.id}`}>
-                        {bundle.name}
-                        {bundle.shared_books_count !== undefined && ` (${bundle.shared_books_count} shared books)`}
-                        {bundle.end_bundle && ` - ended: ${bundle.end_bundle}`}
+                        <div class="bundle-item">
+                            {bundle.shared_books_count !== undefined && (
+                                <div class="shared-count">{bundle.shared_books_count} shared books</div>
+                            )}
+                            <div class="bundle-name">{bundle.name}</div>
+                            {bundle.end_bundle && (
+                                <div class="bundle-date">Ended: {formatDate(bundle.end_bundle)}</div>
+                            )}
+                        </div>
                     </a>
                 </li>
             ))}
@@ -27,7 +47,6 @@ const { title = "Other bundles: ", bundles } = Astro.props;
     </div>
 </div>
 
-<!-- Todo fix styling here --> 
 <style>
     .dropdown { 
         position: relative;
@@ -35,45 +54,132 @@ const { title = "Other bundles: ", bundles } = Astro.props;
     }
 
     .dropdown-badge {
-        background: #4CAF50;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        background-color: var(--accent-light);
         color: white;
-        padding: 0.5rem 1rem;
+        padding: 0.25rem 0.5rem;
         border: none; 
         border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 500;
         cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .dropdown-badge:hover {
+        background-color: var(--accent);
+    }
+
+    .dropdown-badge:active {
+        transform: scale(0.98);
+    }
+
+    .dropdown-icon {
+        transition: transform 0.2s;
+    }
+
+    .dropdown:hover .dropdown-icon {
+        transform: rotate(180deg);
     }
 
     .dropdown-content {
         display: none;
         position: absolute; 
-        background: white;
-        min-width: 200px;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-        z-index: 1;
+        background-color: var(--background);
+        min-width: 300px;
+        max-width: 500px;
+        box-shadow: 0 8px 16px var(--card-shadow-hover);
+        z-index: 1000;
         border-radius: 4px; 
-        padding: 0.5rem 0;
+        border: 1px solid var(--border);
+        padding: 0;
+        left: 0;
     }
 
     .dropdown-content ul {
         list-style: none;
         padding: 0;
         margin: 0;
+        max-height: 400px;
+        overflow-y: auto;
     }
 
     .dropdown-content li {
-        padding: 0.5rem 1rem;
+        padding: 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .dropdown-content li:last-child {
+        border-bottom: none;
     }
 
     .dropdown-content a {
-        color: #333;
+        display: block;
+        padding: 0.75rem 1rem;
+        color: var(--text);
         text-decoration: none;
+        transition: background-color 0.2s, color 0.2s;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
     }
 
     .dropdown-content a:hover {
-        background: #f1f1f1;
+        background-color: var(--background-light);
+    }
+
+    .dropdown-content a:hover .bundle-name {
+        color: var(--accent);
+    }
+
+    .bundle-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .shared-count {
+        font-size: 0.75rem;
+        color: var(--accent);
+        font-weight: 600;
+    }
+
+    .bundle-name {
+        font-size: 0.875rem;
+        color: var(--text);
+        font-weight: 500;
+        line-height: 1.4;
+    }
+
+    .bundle-date {
+        font-size: 0.75rem;
+        color: var(--text-light);
     }
 
     .dropdown:hover .dropdown-content {
         display: block;
+    }
+
+    /* Scrollbar styling for dropdown */
+    .dropdown-content ul::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .dropdown-content ul::-webkit-scrollbar-track {
+        background: var(--background-light);
+        border-radius: 3px;
+    }
+
+    .dropdown-content ul::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+    }
+
+    .dropdown-content ul::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-light);
     }
 </style>

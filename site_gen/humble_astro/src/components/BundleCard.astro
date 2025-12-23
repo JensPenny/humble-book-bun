@@ -9,7 +9,7 @@ interface Props {
   startDate: string;
   endDate: string;
   totalBooks?: number;
-  otherBundles?: Array<{ bundle_id: number; name: string; start_bundle: number; end_bundle: number; shared_books_count: number }>;
+  otherBundles?: Array<{ bundle_id: number; name: string; start_bundle: string; end_bundle: string; shared_books_count: number }>;
 }
 
 const { id, name, type, url, startDate, endDate, totalBooks, otherBundles } = Astro.props;
