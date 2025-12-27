@@ -11,7 +11,8 @@ export async function getGoodreadsRating(
   try {
     // Step 1: Search for the book on Goodreads
     const devs = book.developers.map((d) => d.developer_name).join(" ");
-    const titleFirstWords = getWordsFromTitle(book.human_name, 10);
+    const bookWithoutNewlines = book.human_name.replace(/\n/g, " ");
+    const titleFirstWords = getWordsFromTitle(bookWithoutNewlines, 10);
     const searchUrl = `https://www.goodreads.com/search?q=${encodeURIComponent(titleFirstWords)}`;
     console.log(`Searching Goodreads for: ${book.human_name}`);
 
