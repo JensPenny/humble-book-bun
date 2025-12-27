@@ -9,8 +9,8 @@ echo "Ensuring Docker network exists..."
 
 # Build and run the Docker container
 echo "Building and running the Docker container..."
-docker compose -f ovh-docker-compose.yaml build
-docker compose -f ovh-docker-compose.yaml up
+sudo docker compose -f ovh-docker-compose.yaml build
+sudo docker compose -f ovh-docker-compose.yaml up
 
 echo "Docker job completed!"
 
