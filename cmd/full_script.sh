@@ -26,7 +26,7 @@ fi
 # 3. Export the database to the static site generator
 cd ../db && ./export_to_astro.sh
 # 4. Generate the site again, just for local testing
-cd ../site_gen/humble_astro && npm run build
+cd ../site_gen/humble_astro && bun install && bun run build
 # 4. Processing complete - no Git operations in container
 echo "Data processing and site generation complete!"
 echo "The updated files are now ready for Git operations on the host."

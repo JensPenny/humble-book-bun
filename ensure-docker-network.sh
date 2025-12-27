@@ -8,18 +8,18 @@ CONTAINERS=("pg_data") # Change this to the postgres container name that you use
 # CONTAINERS=("humble_data_pg")
 
 # Create the network if it doesn't exist
-if ! docker network inspect "$NETWORK_NAME" >/dev/null 2>&1; then
+if ! sudo docker network inspect "$NETWORK_NAME" >/dev/null 2>&1; then
     echo "Creating docker network $NETWORK_NAME"
-    docker network create "$NETWORK_NAME"
+    sudo docker network create "$NETWORK_NAME"
 else
     echo "Docker network '$NETWORK_NAME' already exists"
 fi
 
 # Connect to the network if they are not connected
 for CONTAINER in "${CONTAINERS[@]}"; do
-    if ! docker inspect "$CONTAINER" | grep -q "\"$NETWORK_NAME\""; then 
+    if ! sudo docker inspect "$CONTAINER" | grep -q "\"$NETWORK_NAME\""; then 
         echo "Connecting container '$CONTAINER' to '$NETWORK_NAME'"
-        docker network connect "$NETWORK_NAME" "$CONTAINER"
+        sudo docker network connect "$NETWORK_NAME" "$CONTAINER"
     else 
         echo "Container '$CONTAINER' already connected to '$NETWORK_NAME'"
     fi 
