@@ -4,8 +4,8 @@
 # This should ensure that these can be connected through a docker network when you are running the docker compose commands.
 # It is mandatory to run this script before running the actual container
 NETWORK_NAME=humble_net
-# CONTAINERS=("pg_data") # Change this to the postgres container name that you use in your .env file
-CONTAINERS=("humble_data_pg")
+CONTAINERS=("pg_data") # Change this to the postgres container name that you use in your .env file
+#CONTAINERS=("humble_data_pg") # This is the container for local testing
 
 # Create the network if it doesn't exist
 if ! sudo docker network inspect "$NETWORK_NAME" >/dev/null 2>&1; then
