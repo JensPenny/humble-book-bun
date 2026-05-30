@@ -1,10 +1,10 @@
 import { describe, test, expect, spyOn } from "bun:test";
-import type { Bundle, BookItem, GoodreadsRating } from "../types";
+import type { Bundle, BookItem, BookRating } from "../types";
 
 // Create a mock implementation of persistBundle
 const persistBundle = async (
   bundle: Bundle,
-  booksWithRatings: Array<BookItem & { rating: GoodreadsRating }>
+  booksWithRatings: Array<BookItem & { rating: BookRating }>
 ) => {
   console.log("successfully inserted bundle to DB: ", [{ bundle_id: 1 }]);
   return {
@@ -25,13 +25,14 @@ describe("persistBundle", () => {
       end_bundle: new Date("2025-02-01")
     };
 
-    const testBooksWithRatings: Array<BookItem & { rating: GoodreadsRating }> = [
+    const testBooksWithRatings: Array<BookItem & { rating: BookRating }> = [
       {
         human_name: "Test Book 1",
         description_text: "This is a test book",
         item_content_type: "ebook",
         developers: [{ developer_name: "Test Developer 1" }],
         rating: {
+          source: "hardcover",
           url: "https://example.com/book1",
           ratingValue: 4.5,
           ratingCount: 100,
@@ -47,6 +48,7 @@ describe("persistBundle", () => {
           { developer_name: "Test Developer 3" }
         ],
         rating: {
+          source: "openlibrary",
           url: "https://example.com/book2",
           ratingValue: 4.0,
           ratingCount: 200,

@@ -62,8 +62,16 @@ const truncateDescription = (desc: string, maxLength = 150) => {
   return textOnly.substring(0, maxLength) + "...";
 };
 
+const getRatingSource = (url: string | null) => {
+  if (!url) return null;
+  if (url.includes("hardcover.app")) return "Hardcover";
+  if (url.includes("goodreads.com")) return "Goodreads";
+  return "Rating";
+};
+
 const stars = generateStars(ratingAverage);
 const truncatedDescription = truncateDescription(description, 80);
+const ratingSource = getRatingSource(url);
 ---
 
 <div class="book-list-item">
@@ -84,14 +92,14 @@ const truncatedDescription = truncateDescription(description, 80);
   </div>
   <div class="book-actions">
     {
-      url && (
+      url && ratingSource && (
         <a
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          class="goodreads-btn"
+          class="rating-btn"
         >
-          Goodreads
+          {ratingSource}
         </a>
       )
     }
@@ -172,7 +180,7 @@ const truncatedDescription = truncateDescription(description, 80);
     background-color: var(--accent-light);
   }
 
-  .goodreads-btn {
+  .rating-btn {
     display: inline-block;
     font-size: 0.8rem;
     padding: 0.35rem 0.75rem;
@@ -183,7 +191,7 @@ const truncatedDescription = truncateDescription(description, 80);
     text-align: center;
   }
 
-  .goodreads-btn:hover {
+  .rating-btn:hover {
     background-color: var(--accent-dark, #0056b3);
   }
 </style>

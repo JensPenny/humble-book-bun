@@ -18,12 +18,14 @@ export interface Developer {
     developer_name: string;
 }
 
-export interface GoodreadsRating {
-    url: string | null; // The used goodreads URL
+export interface BookRating {
+    source: "goodreads" | "hardcover" | "openlibrary";
+    url: string | null;
     ratingValue: number | null;
     ratingCount: number | null;
     reviewCount: number | null;
 }
+
 
 export const UnmarshalBookItem = (data: any): BookItem => ({
     human_name: data.human_name,

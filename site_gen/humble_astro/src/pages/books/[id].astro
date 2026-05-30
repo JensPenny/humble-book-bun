@@ -48,8 +48,16 @@ const formatDate = (dateString: string) => {
   });
 };
 
+const getRatingSource = (url: string | null) => {
+  if (!url) return null;
+  if (url.includes("hardcover.app")) return "Hardcover";
+  if (url.includes("goodreads.com")) return "Goodreads";
+  return "Rating";
+};
+
 const stars = generateStars(book.rating_average || 0);
 const created = formatDate(book.created);
+const ratingSource = getRatingSource(book.url);
 ---
 
 <Layout title={book.name}>
@@ -83,15 +91,15 @@ const created = formatDate(book.created);
         </div>
       )}
       
-      {book.url && (
+      {book.url && ratingSource && (
         <div class="link-container">
-          <a href={book.url} 
-            target="_blank" 
-            rel="noopener noreferrer" 
+          <a href={book.url}
+            target="_blank"
+            rel="noopener noreferrer"
             class="btn">
-            View on Goodreads
+            View on {ratingSource}
           </a>
-          <a href={`https://github.com/JensPenny/humble-book-bun/issues/new?title=Faulty%20Goodreads%20Link:%20${encodeURIComponent(book.name)}&body=${encodeURIComponent(`Book ID: ${book.id}\nBook Title: ${book.name}\nBundle ID: ${book.bundle_id || 'N/A'}\n\nPlease describe the issue with this Goodreads link, or propose a correct Goodreads link:`)}`}
+          <a href={`https://github.com/JensPenny/humble-book-bun/issues/new?title=Faulty%20${ratingSource}%20Link:%20${encodeURIComponent(book.name)}&body=${encodeURIComponent(`Book ID: ${book.id}\nBook Title: ${book.name}\nBundle ID: ${book.bundle_id || 'N/A'}\n\nPlease describe the issue with this ${ratingSource} link, or propose a correct link:`)}`}
             target="_blank"
             rel="noopener noreferrer"
             class="btn btn-secondary report-link">

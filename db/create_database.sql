@@ -26,9 +26,10 @@ CREATE TABLE IF NOT EXISTS book (
     description TEXT,      -- Book description
     content_type TEXT,     -- Type of content (e.g., "ebook")
     url TEXT, 
-    rating_average REAL,   -- Average Goodreads rating
-    rating_count INTEGER,  -- Number of ratings on Goodreads
-    review_count INTEGER,  -- Number of reviews on Goodreads
+    rating_average REAL,   -- Average rating (from any source)
+    rating_count INTEGER,  -- Number of ratings
+    review_count INTEGER,  -- Number of reviews
+    rating_source TEXT,    -- Source of the rating: goodreads, hardcover, openlibrary
     created_ts INTEGER NOT NULL, -- When this record was created
     developer TEXT, -- The author or developer of this book
     FOREIGN KEY(bundle_id) REFERENCES bundle(bundle_id) ON DELETE CASCADE

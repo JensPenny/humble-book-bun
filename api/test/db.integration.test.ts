@@ -1,6 +1,6 @@
 import { describe, test, expect, spyOn, mock, beforeAll } from "bun:test";
 import { persistBundle } from "../core/db";
-import type { Bundle, BookItem, GoodreadsRating } from "../types";
+import type { Bundle, BookItem, BookRating } from "../types";
 import * as bun from "bun";
 import { SQL } from "bun";
 
@@ -18,13 +18,14 @@ describe("persistBundle integration", () => {
       end_bundle: new Date("2025-02-01")
     };
 
-    const testBooksWithRatings: Array<BookItem & { rating: GoodreadsRating }> = [
+    const testBooksWithRatings: Array<BookItem & { rating: BookRating }> = [
       {
         human_name: "Test Book 1",
         description_text: "This is a test book",
         item_content_type: "ebook",
         developers: [{ developer_name: "Test Developer 1" }],
         rating: {
+          source: "hardcover",
           url: "https://example.com/book1",
           ratingValue: 4.5,
           ratingCount: 100,
@@ -40,6 +41,7 @@ describe("persistBundle integration", () => {
           { developer_name: "Test Developer 3" }
         ],
         rating: {
+          source: "openlibrary",
           url: "https://example.com/book2",
           ratingValue: 4.0,
           ratingCount: 200,

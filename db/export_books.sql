@@ -15,6 +15,7 @@ SELECT
         b.rating_average,
         b.rating_count,
         b.review_count,
+        b.rating_source,
         to_timestamp(b.created_ts) AS created,
         b.developer AS developers,
         (

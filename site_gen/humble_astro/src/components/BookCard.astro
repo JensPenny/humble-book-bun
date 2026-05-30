@@ -60,8 +60,16 @@ const truncateDescription = (desc: string, maxLength = 150) => {
   return textOnly.substring(0, maxLength) + '...';
 };
 
+const getRatingSource = (url: string | null) => {
+  if (!url) return null;
+  if (url.includes("hardcover.app")) return "Hardcover";
+  if (url.includes("goodreads.com")) return "Goodreads";
+  return "Rating";
+};
+
 const stars = generateStars(ratingAverage);
 const truncatedDescription = truncateDescription(description);
+const ratingSource = getRatingSource(url);
 ---
 
 <div class="card book-card">
@@ -86,7 +94,7 @@ const truncatedDescription = truncateDescription(description);
   
   <div class="book-actions">
     <a href={`/books/${id}`} class="btn">View Details</a>
-    {url && <a href={url} target="_blank" rel="noopener noreferrer" class="btn btn-secondary">Goodreads</a>}
+    {url && ratingSource && <a href={url} target="_blank" rel="noopener noreferrer" class="btn btn-secondary">{ratingSource}</a>}
   </div>
 </div>
 

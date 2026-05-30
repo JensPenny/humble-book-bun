@@ -1,61 +1,49 @@
-import type { Bundle, BookItem, GoodreadsRating } from "../types";
-import { sql, SQL } from "bun";
+import type { Bundle, BookItem, BookRating } from "../types";
+import { SQL } from "bun";
 
 // Global initialized for connection pooling purposes
-const db = new SQL({
-  // Required
-  // url: "postgres://user:pass@localhost:5432/dbname", // Filled in by .env parameters - https://bun.sh/docs/api/sql#database-environment-variables
+const db = createDbPool();
 
-  // Optional configuration
-  // hostname: "localhost",
-  // port: 5432,
-  // database: "myapp",
-  // username: "dbuser",
-  // password: "secretpass",
+function createDbPool(): SQL {
+  // For local dev, disable TLS if PG_TLS is not set to "true"
+  // For remote/production, set PG_TLS=true in your .env
+  const useTls = process.env.PG_TLS === "true";
 
-  // Connection pool settings
-  max: 20, // Maximum connections in pool
-  idleTimeout: 30, // Close idle connections after 30s
-  maxLifetime: 0, // Connection lifetime in seconds (0 = forever)
-  connectionTimeout: 30, // Timeout when establishing new connections
+  const config: any = {
+    max: 20, // Maximum connections in pool
+    idleTimeout: 30, // Close idle connections after 30s
+    maxLifetime: 0, // Connection lifetime in seconds (0 = forever)
+    connectionTimeout: 30, // Timeout when establishing new connections
 
-  // SSL/TLS options
-  tls: true,
-  // tls: {
-  //   rejectUnauthorized: true,
-  //   requestCert: true,
-  //   ca: "path/to/ca.pem",
-  //   key: "path/to/key.pem",
-  //   cert: "path/to/cert.pem",
-  //   checkServerIdentity(hostname, cert) {
-  //     ...
-  //   },
-  // },
+    onconnect: (client: any) => {
+      console.log("Connected to database");
+    },
+    onclose: (client: any) => {
+      console.log("Connection closed");
+    },
+  };
 
-  // Callbacks
-  onconnect: client => {
-    console.log("Connected to database");
-  },
-  onclose: client => {
-    console.log("Connection closed");
-  },
-},
-)
+  if (useTls) {
+    config.tls = true;
+  }
+
+  return new SQL(config);
+}
 
 /**
  * Persists a single bundle and its associated books to the database
  * @param bundle The bundle data
- * @param booksWithRatings The books with their Goodreads ratings
+ * @param booksWithRatings The books with their ratings
  * @returns Object containing the inserted bundle ID and book IDs
  */
 export async function persistBundle(
   bundle: Bundle,
-  booksWithRatings: Array<BookItem & { rating: GoodreadsRating }>
+  booksWithRatings: Array<BookItem & { rating: BookRating }>
 ): Promise<{ bundleId: number; bookIds: number[]; }> {
   // Start a transaction to ensure data consistency
   try {
     // Insert the bundle
-    const inserted = await sql`
+    const inserted = await db`
     INSERT INTO bundle (name, type, url, start_bundle, end_bundle, created_ts)
     VALUES (
       ${bundle.name}, 
@@ -67,8 +55,6 @@ export async function persistBundle(
     )
     RETURNING bundle_id
     `;
-
-    //console.log("successfully inserted bundle to DB: ", inserted);
 
     const bundleId = inserted[0].bundle_id as number;
 
@@ -92,18 +78,18 @@ export async function persistBundle(
 /**
  * Persists multiple books and their developers to the database
  * @param bundleId The ID of the bundle these books belong to
- * @param booksWithRatings The books with their Goodreads ratings
+ * @param booksWithRatings The books with their ratings
  * @returns Array of inserted book IDs
  */
 export async function persistBundleBooks(
   bundleId: number,
-  booksWithRatings: Array<BookItem & { rating: GoodreadsRating }>
+  booksWithRatings: Array<BookItem & { rating: BookRating }>
 ): Promise<number[]> {
   const bookIds: number[] = [];
 
   const rowObjectsToInsert: {
-    bundle_id: number; name: string; description: string; content_type: string; url: string | null; // Persist the rating as the book URL for now. Only split this if you later want multiple rating systems
-    rating_average: number | null; rating_count: number | null; review_count: number | null; created_ts: number; developer: string;
+    bundle_id: number; name: string; description: string; content_type: string; url: string | null;
+    rating_average: number | null; rating_count: number | null; review_count: number | null; rating_source: string | null; created_ts: number; developer: string;
   }[] = [];
   for (const book of booksWithRatings) {
     rowObjectsToInsert.push({
@@ -111,10 +97,11 @@ export async function persistBundleBooks(
       name: book.human_name,
       description: book.description_text,
       content_type: book.item_content_type,
-      url: book.rating.url || null, // Persist the rating as the book URL for now. Only split this if you later want multiple rating systems
+      url: book.rating.url || null,
       rating_average: book.rating.ratingValue || null,
       rating_count: book.rating.ratingCount || null,
       review_count: book.rating.reviewCount || null,
+      rating_source: book.rating.source || null,
       created_ts: Math.floor(Date.now() / 1000),
       developer: book.developers.map(d => d.developer_name).join(","),
     })
@@ -125,18 +112,16 @@ export async function persistBundleBooks(
   
   try {
     // Use a transaction for all book inserts
-    const bookResultsArray = await sql.begin(async tx => {
-      //console.log("Transaction started");
+    const bookResultsArray = await db.begin(async tx => {
       const results = [];
       
       for (const row of rowObjectsToInsert) {
-        //console.log(`Inserting book: ${row.name}`);
         try {
           const result = await tx`
             INSERT INTO book (
               bundle_id, name, description, content_type, url,
-              rating_average, rating_count, review_count, created_ts, developer
-            ) 
+              rating_average, rating_count, review_count, rating_source, created_ts, developer
+            )
             VALUES (
               ${row.bundle_id},
               ${row.name},
@@ -146,12 +131,12 @@ export async function persistBundleBooks(
               ${row.rating_average},
               ${row.rating_count},
               ${row.review_count},
+              ${row.rating_source},
               ${row.created_ts},
               ${row.developer}
             )
             RETURNING book_id, name
           `;
-          //console.log(`Book insert result:`, result);
           results.push(result);
         } catch (err) {
           console.error(`Error inserting book ${row.name}:`, err);
@@ -159,7 +144,6 @@ export async function persistBundleBooks(
         }
       }
       
-      //console.log("All book inserts completed successfully");
       return results;
     });
     
@@ -168,7 +152,6 @@ export async function persistBundleBooks(
     
     // Flatten the results
     bookResults = bookResultsArray.flat();
-    //console.log("Flattened book results:", bookResults);
   } catch (err) {
     console.error("Transaction failed:", err);
     throw err;
